@@ -97,8 +97,6 @@ class Model:
 
     def setupTF(self):
         "initialize TF"
-        # print('Python: ' + sys.version)
-        # print('Tensorflow: ' + tf.__version__)
 
         sess = tf.Session()  # TF session
 
@@ -154,9 +152,11 @@ class Model:
 
     def trainBatch(self, batch):
         "feed a batch into the NN to train it"
+
         sparse = self.toSparse(batch.gtTexts)
-        (_, lossVal) = self.sess.run([self.optimizer, self.loss], {self.inputImgs: batch.imgs, self.gtTexts: sparse,
-                                                                   self.seqLen: [Model.maxTextLen] * Model.batchSize})
+        (_, lossVal) = self.sess.run([self.optimizer, self.loss],
+                                     feed_dict={self.inputImgs: batch.imgs, self.gtTexts: sparse,
+                                                self.seqLen: [Model.maxTextLen] * Model.batchSize})
         return lossVal
 
     def inferBatch(self, batch):

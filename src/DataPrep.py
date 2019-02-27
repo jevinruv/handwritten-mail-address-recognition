@@ -71,8 +71,11 @@ class DataPrep:
         return (self.currIdx // self.batchSize, len(self.samples) // self.batchSize)
 
     def hasNext(self):
-        "iterator"
-        return self.currIdx + self.batchSize <= len(self.samples)
+        return int(len(self.samples) / self.batchSize)
+
+    # def hasNext(self):
+    #     "iterator"
+    #     return self.currIdx + self.batchSize <= len(self.samples)
 
     def getNext(self):
         "iterator"
