@@ -3,10 +3,10 @@ import cv2
 
 from Batch import Batch
 from Sample import Sample
-from SamplePreprocessor import preprocess
+from ImagePreProcess import preprocess
 
 
-class DataLoader:
+class DataPrep:
 
     def __init__(self, filePath, batchSize, imgSize, maxTextLen):
         "loader for dataset at given location, preprocess images and text according to parameters"

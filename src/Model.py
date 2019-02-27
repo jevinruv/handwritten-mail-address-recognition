@@ -9,6 +9,7 @@ class Model:
     batchSize = 50
     imgSize = (128, 32)
     maxTextLen = 32
+    learning_rate = 0.001
 
     def __init__(self, charList):
         "init model: add CNN, RNN and CTC and initialize TF"
@@ -19,7 +20,7 @@ class Model:
         # CNN
         self.inputImgs = tf.placeholder(tf.float32, shape=(Model.batchSize, Model.imgSize[0], Model.imgSize[1]))
         # self.inputImgs = tf.placeholder(tf.float32, shape=(Model.batchSize, self.IMG_WIDTH, self.IMG_HEIGHT))
-        cnnOut4d = self.setupCNN(self.inputImgs)
+        cnnOut4d = self.build_CNN(self.inputImgs)
 
         # RNN
         rnnOut3d = self.setupRNN(cnnOut4d)
@@ -28,12 +29,12 @@ class Model:
         (self.loss, self.decoder) = self.setupCTC(rnnOut3d)
 
         # optimizer for NN parameters
-        self.optimizer = tf.train.RMSPropOptimizer(0.001).minimize(self.loss)
+        self.optimizer = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
 
         # initialize TF
         (self.sess, self.saver) = self.setupTF()
 
-    def setupCNN(self, cnnIn3d):
+    def build_CNN(self, cnnIn3d):
         "create CNN layers and return output of these layers"
 
         cnnIn4d = tf.expand_dims(input=cnnIn3d, axis=3)
