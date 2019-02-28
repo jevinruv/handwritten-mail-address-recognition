@@ -1,4 +1,3 @@
-import sys
 import tensorflow as tf
 
 
@@ -29,7 +28,8 @@ class Model:
         (self.loss, self.decoder) = self.setupCTC(rnnOut3d)
 
         # optimizer for NN parameters
-        self.optimizer = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
+        # self.optimizer = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
+        self.optimizer = tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
 
         # initialize TF
         (self.sess, self.saver) = self.setupTF()
@@ -40,7 +40,7 @@ class Model:
         cnnIn4d = tf.expand_dims(input=cnnIn3d, axis=3)
 
         # list of parameters for the layers
-        featureVals = [1, 32, 64, 128, 128, 256]
+        feature_values = [1, 32, 64, 128, 128, 256]
         strideVals = poolVals = [(2, 2), (2, 2), (1, 2), (1, 2), (1, 2)]
         numLayers = len(strideVals)
 
@@ -48,7 +48,7 @@ class Model:
         pool = cnnIn4d  # input to first CNN layer
         for i in range(numLayers):
             k = 5
-            kernel = tf.Variable(tf.truncated_normal([k, k, featureVals[i], featureVals[i + 1]], stddev=0.1))
+            kernel = tf.Variable(tf.truncated_normal([k, k, feature_values[i], feature_values[i + 1]], stddev=0.1))
             conv = tf.nn.conv2d(pool, kernel, padding='SAME', strides=(1, 1, 1, 1))
             relu = tf.nn.relu(conv)
             pool = tf.nn.max_pool(relu,
@@ -98,7 +98,7 @@ class Model:
     def setupTF(self):
         "initialize TF"
 
-        sess = tf.Session()  # TF session
+        sess = tf.Session()
 
         saver = tf.train.Saver(max_to_keep=1)  # saver saves model to file
         latestSnapshot = tf.train.latest_checkpoint('../model/')  # is there a saved model?

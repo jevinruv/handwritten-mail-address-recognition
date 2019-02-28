@@ -40,8 +40,8 @@ class DataPrep:
             # put sample into list
             self.samples.append(Sample(gtText, fileName))
 
-        # split into training and validation set: 95% - 5%
-        splitIdx = int(0.95 * len(self.samples))
+        # split train 85% and test 15%
+        splitIdx = int(0.85 * len(self.samples))
         self.trainSamples = self.samples[:splitIdx]
         self.validationSamples = self.samples[splitIdx:]
 
@@ -71,7 +71,7 @@ class DataPrep:
         return (self.currIdx // self.batchSize, len(self.samples) // self.batchSize)
 
     def hasNext(self):
-        return int(len(self.samples) / self.batchSize)
+        return len(self.samples) / self.batchSize
 
     # def hasNext(self):
     #     "iterator"
@@ -79,10 +79,17 @@ class DataPrep:
 
     def getNext(self):
         "iterator"
+        gtTexts = []
+        imgs = []
 
         batchRange = range(self.currIdx, self.currIdx + self.batchSize)
-        gtTexts = [self.samples[i].gtText for i in batchRange]
-        imgs = [preprocess(cv2.imread(self.samples[i].filePath, cv2.IMREAD_GRAYSCALE), self.imgSize) for i in
-                batchRange]
+        # gtTexts = [self.samples[i].gtText for i in batchRange]
+        # imgs = [preprocess(cv2.imread(self.samples[i].filePath, cv2.IMREAD_GRAYSCALE), self.imgSize) for i in
+        #         batchRange]
+
+        for i in batchRange:
+            gtTexts.append(self.samples[i].gtText)
+            imgs.append(preprocess(cv2.imread(self.samples[i].filePath, cv2.IMREAD_GRAYSCALE), self.imgSize))
+
         self.currIdx += self.batchSize
         return Batch(gtTexts, imgs)

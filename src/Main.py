@@ -6,12 +6,11 @@ from Batch import Batch
 from Model import Model
 from ImagePreProcess import preprocess
 
-# filenames and paths to data
 fnCharList = '../model/charList.txt'
-# fnTrain = "../../../../../../Dataset/"
-fnTrain = "../../../Dataset/"
+fnTrain = "../../../../../../Dataset/"
+# fnTrain = "../../../Dataset/"
 fnInfer = '../data/test.png'
-n_epochs = 3
+n_epochs = 10
 
 
 class Main:
@@ -34,19 +33,19 @@ class Main:
         open(fnCharList, 'w').write(str().join(self.loader.charList))
 
         for epoch in range(n_epochs):
-            print('Epoch No. ', epoch)
-            self.model.save()
-
+            print('Epoch No. ', epoch, " of ", n_epochs)
             self.train()
             self.test()
-
             epoch += 1
+
+        self.model.save()
 
     def train(self):
         print('Training Neural Network Started!')
         self.loader.trainSet()
         self.loader.shuffle()
-        for _ in tqdm(range(self.loader.hasNext())):
+        for _ in tqdm(range(int(self.loader.hasNext()))):
+            v = self.loader.hasNext()
             iterInfo = self.loader.getIteratorInfo()
             batch = self.loader.getNext()
             loss = self.model.trainBatch(batch)
@@ -57,11 +56,12 @@ class Main:
         self.loader.validationSet()
         numOK = 0
         numTotal = 0
-        for _ in tqdm(range(self.loader.hasNext())):
+
+        for _ in tqdm(range(int(self.loader.hasNext()))):
             iterInfo = self.loader.getIteratorInfo()
             # print('Iterator:', iterInfo)
             batch = self.loader.getNext()
-            loss = self.model.trainBatch(batch)
+            # loss = self.model.trainBatch(batch)
             recognized = self.model.inferBatch(batch)
 
             # print('Ground truth -> Recognized')
@@ -71,6 +71,7 @@ class Main:
                 numOK += 1 if isOK else 0
                 numTotal += 1
 
+        print(" corr ", numOK, " total ", numTotal)
         print('Correctly recognized words:', numOK / numTotal * 100.0, '%')
 
     def recognize_text(self):
