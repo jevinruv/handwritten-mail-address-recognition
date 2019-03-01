@@ -1,17 +1,20 @@
 import tensorflow as tf
+import os
+import shutil
 
 
 class Model:
-    "minimalistic TF model for HTR"
+    "minimalistic TF saved-model for HTR"
 
     # constants
     batchSize = 50
     imgSize = (128, 32)
     maxTextLen = 32
     learning_rate = 0.001
+    path_model = '../saved-model/'
 
     def __init__(self, charList):
-        "init model: add CNN, RNN and CTC and initialize TF"
+        "init saved-model: add CNN, RNN and CTC and initialize TF"
 
         self.charList = charList
         self.snapID = 0
@@ -22,7 +25,7 @@ class Model:
         cnnOut4d = self.build_CNN(self.inputImgs)
 
         # RNN
-        rnnOut3d = self.setupRNN(cnnOut4d)
+        rnnOut3d = self.build_RNN(cnnOut4d)
 
         # CTC
         (self.loss, self.decoder) = self.setupCTC(rnnOut3d)
@@ -40,6 +43,7 @@ class Model:
         cnnIn4d = tf.expand_dims(input=cnnIn3d, axis=3)
 
         # list of parameters for the layers
+        filter_size = [5, 5, 3, 3, 3]
         feature_values = [1, 32, 64, 128, 128, 256]
         strideVals = poolVals = [(2, 2), (2, 2), (1, 2), (1, 2), (1, 2)]
         numLayers = len(strideVals)
@@ -47,9 +51,11 @@ class Model:
         # create layers
         pool = cnnIn4d  # input to first CNN layer
         for i in range(numLayers):
-            k = 5
-            kernel = tf.Variable(tf.truncated_normal([k, k, feature_values[i], feature_values[i + 1]], stddev=0.1))
-            conv = tf.nn.conv2d(pool, kernel, padding='SAME', strides=(1, 1, 1, 1))
+            # filter = tf.Variable(tf.truncated_normal([k, k, feature_values[i], feature_values[i + 1]], stddev=0.1))
+            filter = tf.Variable(
+                tf.truncated_normal([filter_size[i], filter_size[i], feature_values[i], feature_values[i + 1]],
+                                    stddev=0.1))
+            conv = tf.nn.conv2d(pool, filter, padding='SAME', strides=(1, 1, 1, 1))
             relu = tf.nn.relu(conv)
             pool = tf.nn.max_pool(relu,
                                   ksize=(1, poolVals[i][0], poolVals[i][1], 1),
@@ -58,7 +64,7 @@ class Model:
 
         return pool
 
-    def setupRNN(self, rnnIn4d):
+    def build_RNN(self, rnnIn4d):
         "create RNN layers and return output of these layers"
         rnnIn3d = tf.squeeze(rnnIn4d, axis=[2])
 
@@ -100,10 +106,10 @@ class Model:
 
         sess = tf.Session()
 
-        saver = tf.train.Saver(max_to_keep=1)  # saver saves model to file
-        latestSnapshot = tf.train.latest_checkpoint('../model/')  # is there a saved model?
+        saver = tf.train.Saver()  # saver saves saved-model to file
+        latestSnapshot = tf.train.latest_checkpoint('../saved-model/')  # is there a saved saved-model?
 
-        # no saved model -> init with new values
+        # no saved saved-model -> init with new values
         if not latestSnapshot:
             print('Init with new values')
             sess.run(tf.global_variables_initializer())
@@ -150,7 +156,7 @@ class Model:
         # map labels to chars for all batch elements
         return [str().join([self.charList[c] for c in labelStr]) for labelStr in encodedLabelStrs]
 
-    def trainBatch(self, batch):
+    def train_batch(self, batch):
         "feed a batch into the NN to train it"
 
         sparse = self.toSparse(batch.gtTexts)
@@ -167,8 +173,9 @@ class Model:
                                  self.seqLen: [Model.maxTextLen] * Model.batchSize})
         return self.fromSparse(decoded)
 
-    def save(self):
-        "save model to file"
+    def save(self, accuracy):
 
-        self.snapID += 1
-        self.saver.save(self.sess, '../model/snapshot', global_step=self.snapID)
+        shutil.rmtree(self.path_model)
+        os.mkdir(self.path_model)
+        file_name = self.path_model + 'snapshot-acc ' + str(round(accuracy, 2))
+        self.saver.save(self.sess, file_name)

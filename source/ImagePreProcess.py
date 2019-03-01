@@ -96,6 +96,12 @@ def preprocess_mod():
 # pre()
 # preprocess_mod()
 
-# img = cv2.imread('../data/2test.png')
-# plt.imshow(img)
+
+# img = cv2.imread('../resources/test1.png', cv2.IMREAD_GRAYSCALE)
+# cv2.imshow("er", img)
+# cv2.waitKey()
+#
+# plt.axis("off")
+# plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 # plt.show()
+
