@@ -1,4 +1,2 @@
 src/__pycache__/
-model/checkpoint
-model/snapshot-*
-model/model.zip
+saved-model/

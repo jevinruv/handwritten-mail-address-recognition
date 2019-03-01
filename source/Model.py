@@ -177,5 +177,7 @@ class Model:
 
         shutil.rmtree(self.path_model)
         os.mkdir(self.path_model)
+
         file_name = self.path_model + 'snapshot-acc ' + str(round(accuracy, 2))
         self.saver.save(self.sess, file_name)
+        print('Model Saved! ', file_name)

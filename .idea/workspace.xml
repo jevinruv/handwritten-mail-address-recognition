@@ -2,27 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="344765eb-f4c4-4fe9-89e0-48c27f2233f3" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/resources/qa.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/test1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/test2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/test3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/test4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/source/t.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/handwritten-text-recognition.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/handwritten-text-recognition.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/2test.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/33test.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/checkDirs.py" beforeDir="false" afterPath="$PROJECT_DIR$/resources/checkDirs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/test.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/charList.txt" beforeDir="false" afterPath="$PROJECT_DIR$/resources/char-list.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/Batch.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/Constants.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/DataPrep.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/DataPrep.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ImageInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/ImageInfo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ImagePreProcess.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/ImagePreProcess.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/Main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Model.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/Model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/Sample.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/qa.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/Main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/Model.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/Model.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -31,7 +15,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/handwritten_text_recognition$Main__1_.coverage" NAME="Main (1) Coverage Results" MODIFIED="1551365164927" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/source" />
+    <SUITE FILE_PATH="coverage/handwritten_text_recognition$Main__1_.coverage" NAME="Main (1) Coverage Results" MODIFIED="1551409287459" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/source" />
     <SUITE FILE_PATH="coverage/handwritten_text_recognition$checkDirs.coverage" NAME="checkDirs Coverage Results" MODIFIED="1551241178553" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data" />
     <SUITE FILE_PATH="coverage/handwritten_text_recognition$main.coverage" NAME="main Coverage Results" MODIFIED="1551242759864" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/handwritten_text_recognition$Main.coverage" NAME="Main Coverage Results" MODIFIED="1551359179199" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
@@ -43,12 +27,13 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/source/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-41">
-              <caret line="14" column="12" selection-start-line="14" selection-start-column="12" selection-end-line="14" selection-end-column="12" />
+            <state relative-caret-position="408">
+              <caret line="103" lean-forward="true" selection-start-line="103" selection-end-line="103" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
+                <element signature="e#442#551#0" />
+                <element signature="e#560#1110#0" />
                 <element signature="e#1141#1541#0" />
-                <element signature="e#1571#2515#0" />
                 <element signature="e#2555#2908#0" />
               </folding>
             </state>
@@ -56,10 +41,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/source/Model.py">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1959">
-              <caret line="2" selection-start-line="2" selection-end-line="2" selection-end-column="13" />
+            <state relative-caret-position="17">
+              <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
             </state>
           </provider>
         </entry>
@@ -89,9 +74,10 @@
         <option value="$PROJECT_DIR$/src/Model.py" />
         <option value="$PROJECT_DIR$/src/Main.py" />
         <option value="$PROJECT_DIR$/source/ImagePreProcess.py" />
-        <option value="$PROJECT_DIR$/source/Model.py" />
         <option value="$PROJECT_DIR$/source/t.py" />
+        <option value="$PROJECT_DIR$/source/Model.py" />
         <option value="$PROJECT_DIR$/source/Main.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -121,6 +107,11 @@
               <item name="handwritten-text-recognition" type="b2602c69:ProjectViewProjectNode" />
               <item name="handwritten-text-recognition" type="462c0819:PsiDirectoryNode" />
               <item name="resources" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="handwritten-text-recognition" type="b2602c69:ProjectViewProjectNode" />
+              <item name="handwritten-text-recognition" type="462c0819:PsiDirectoryNode" />
+              <item name="saved-model" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="handwritten-text-recognition" type="b2602c69:ProjectViewProjectNode" />
@@ -163,7 +154,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.t">
+  <component name="RunManager" selected="Python.Main (1)">
     <configuration name="ImagePreProcess" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="handwritten-text-recognition" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -276,9 +267,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.Main (1)" />
         <item itemvalue="Python.t" />
         <item itemvalue="Python.ImagePreProcess" />
-        <item itemvalue="Python.Main (1)" />
         <item itemvalue="Python.Main" />
         <item itemvalue="Python.main" />
       </list>
@@ -292,12 +283,12 @@
       <option name="presentableId" value="Default" />
       <updated>1551240838630</updated>
       <workItem from="1551240840568" duration="17272000" />
-      <workItem from="1551322779344" duration="24936000" />
+      <workItem from="1551322779344" duration="27579000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="42208000" />
+    <option name="totallyTimeSpent" value="44851000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
@@ -455,19 +446,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/source/Main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-41">
-          <caret line="14" column="12" selection-start-line="14" selection-start-column="12" selection-end-line="14" selection-end-column="12" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-            <element signature="e#1141#1541#0" />
-            <element signature="e#1571#2515#0" />
-            <element signature="e#2555#2908#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/source/t.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
@@ -480,8 +458,35 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/source/Model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1959">
-          <caret line="2" selection-start-line="2" selection-end-line="2" selection-end-column="13" />
+        <state relative-caret-position="557">
+          <caret line="182" column="28" selection-start-line="182" selection-start-column="28" selection-end-line="182" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/qa.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/source/Main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="103" lean-forward="true" selection-start-line="103" selection-end-line="103" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#442#551#0" />
+            <element signature="e#560#1110#0" />
+            <element signature="e#1141#1541#0" />
+            <element signature="e#2555#2908#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
         </state>
       </provider>
     </entry>

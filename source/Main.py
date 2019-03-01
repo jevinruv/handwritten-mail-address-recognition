@@ -12,7 +12,7 @@ path_dataset = "../../../../../../Dataset/"
 # fnTrain = "../../../Dataset/"
 fnInfer = '../resources/test.png'
 path_test_img = '../resources/'
-n_epochs = 5
+n_epochs = 1
 
 
 class Main:
@@ -90,10 +90,7 @@ class Main:
         recognized = self.model.inferBatch(batch)
         print('Image Text: ', recognized[0])
 
-    def recognize_text_data(self):
-
-        # self.model = None
-        # self.model = Model(open(path_char_list).read())
+    def test_extension(self):
 
         for img_file in os.listdir(path_test_img):
             if img_file.endswith(".png"):
@@ -108,4 +105,4 @@ class Main:
 
 main = Main()
 main.create_new_model()
-main.recognize_text_data()
+main.test_extension()
