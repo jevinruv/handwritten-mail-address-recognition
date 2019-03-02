@@ -10,7 +10,7 @@ class Model:
     batchSize = 50
     imgSize = (128, 32)
     maxTextLen = 32
-    learning_rate = 0.001
+    learning_rate = 0.0001
     path_model = '../saved-model/'
 
     def __init__(self, charList):
