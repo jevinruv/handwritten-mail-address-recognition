@@ -2,11 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="344765eb-f4c4-4fe9-89e0-48c27f2233f3" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/qa.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/DataPrep.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/DataPrep.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/source/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/Main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/source/Model.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/Model.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -15,7 +13,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/handwritten_text_recognition$Main__1_.coverage" NAME="Main (1) Coverage Results" MODIFIED="1551409287459" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/source" />
+    <SUITE FILE_PATH="coverage/handwritten_text_recognition$Main__1_.coverage" NAME="Main (1) Coverage Results" MODIFIED="1551497382143" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/source" />
     <SUITE FILE_PATH="coverage/handwritten_text_recognition$checkDirs.coverage" NAME="checkDirs Coverage Results" MODIFIED="1551241178553" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data" />
     <SUITE FILE_PATH="coverage/handwritten_text_recognition$main.coverage" NAME="main Coverage Results" MODIFIED="1551242759864" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/handwritten_text_recognition$Main.coverage" NAME="Main Coverage Results" MODIFIED="1551359179199" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
@@ -23,28 +21,46 @@
     <SUITE FILE_PATH="coverage/handwritten_text_recognition$ImagePreProcess.coverage" NAME="ImagePreProcess Coverage Results" MODIFIED="1551366695376" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/source" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+    <leaf>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/source/DataPrep.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="197">
+              <caret line="77" column="49" selection-start-line="77" selection-start-column="49" selection-end-line="77" selection-end-column="49" />
+              <folding>
+                <element signature="e#1659#1749#0" />
+                <element signature="e#1788#1885#0" />
+                <element signature="e#1918#2001#0" />
+                <element signature="e#2042#2178#0" />
+                <element signature="e#2211#2252#0" />
+                <element signature="e#2400#2996#0" />
+                <element signature="e#2531#2587#0" />
+                <element signature="e#2772#2920#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/source/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="103" lean-forward="true" selection-start-line="103" selection-end-line="103" />
+            <state relative-caret-position="-409">
+              <caret line="12" column="23" selection-start-line="12" selection-start-column="23" selection-end-line="12" selection-end-column="23" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
-                <element signature="e#442#551#0" />
-                <element signature="e#560#1110#0" />
-                <element signature="e#1141#1541#0" />
-                <element signature="e#2555#2908#0" />
+                <element signature="e#1695#2639#0" />
+                <element signature="e#2679#3032#0" />
+                <element signature="e#3073#3522#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/.gitignore">
+        <entry file="file://$PROJECT_DIR$/source/Sample.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
+            <state relative-caret-position="102">
+              <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
             </state>
           </provider>
         </entry>
@@ -76,8 +92,10 @@
         <option value="$PROJECT_DIR$/source/ImagePreProcess.py" />
         <option value="$PROJECT_DIR$/source/t.py" />
         <option value="$PROJECT_DIR$/source/Model.py" />
-        <option value="$PROJECT_DIR$/source/Main.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/source/Main.py" />
+        <option value="$PROJECT_DIR$/source/DataPrep.py" />
+        <option value="$PROJECT_DIR$/source/Sample.py" />
       </list>
     </option>
   </component>
@@ -102,16 +120,6 @@
             <path>
               <item name="handwritten-text-recognition" type="b2602c69:ProjectViewProjectNode" />
               <item name="handwritten-text-recognition" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="handwritten-text-recognition" type="b2602c69:ProjectViewProjectNode" />
-              <item name="handwritten-text-recognition" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="handwritten-text-recognition" type="b2602c69:ProjectViewProjectNode" />
-              <item name="handwritten-text-recognition" type="462c0819:PsiDirectoryNode" />
-              <item name="saved-model" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="handwritten-text-recognition" type="b2602c69:ProjectViewProjectNode" />
@@ -283,24 +291,25 @@
       <option name="presentableId" value="Default" />
       <updated>1551240838630</updated>
       <workItem from="1551240840568" duration="17272000" />
-      <workItem from="1551322779344" duration="27579000" />
+      <workItem from="1551322779344" duration="30922000" />
+      <workItem from="1551495638332" duration="2465000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="44851000" />
+    <option name="totallyTimeSpent" value="50659000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25340393" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25718608" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3707483" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.27380952" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.2414966" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3707483" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -320,7 +329,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/source/DataPrep.py</url>
-          <line>94</line>
+          <line>105</line>
           <option name="timeStamp" value="11" />
         </line-breakpoint>
       </breakpoints>
@@ -348,13 +357,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/source/Sample.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="9" selection-start-column="6" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/source/Batch.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="119">
@@ -369,45 +371,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Tester.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1802">
-          <caret line="108" lean-forward="true" selection-start-line="108" selection-end-line="108" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-            <element signature="e#3120#3268#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/source/DataPrep.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="927">
-          <caret line="87" column="29" lean-forward="true" selection-start-line="87" selection-start-column="29" selection-end-line="87" selection-end-column="29" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/data/2test.png">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/data/33test.png">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/data/test.png">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/test1.png">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/test4.png">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/test3.png">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Tester.py" />
+    <entry file="file://$PROJECT_DIR$/data/2test.png" />
+    <entry file="file://$PROJECT_DIR$/data/33test.png" />
+    <entry file="file://$PROJECT_DIR$/data/test.png" />
     <entry file="file://$PROJECT_DIR$/resources/char-list.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -429,13 +396,32 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/test2.png">
+    <entry file="file://$PROJECT_DIR$/source/t.py" />
+    <entry file="file://$PROJECT_DIR$/resources/qa.jpg" />
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/test1.png">
       <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/source/Model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3094">
+          <caret line="182" column="28" selection-start-line="182" selection-start-column="28" selection-end-line="182" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/source/ImagePreProcess.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="45" column="21" lean-forward="true" selection-start-line="45" selection-start-column="21" selection-end-line="45" selection-end-column="21" />
+        <state relative-caret-position="435">
+          <caret line="107" lean-forward="true" selection-start-line="107" selection-end-line="107" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
             <element signature="e#98#757#0" />
@@ -446,47 +432,49 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/source/t.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="17" selection-start-line="17" selection-end-line="17" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/source/Model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="557">
-          <caret line="182" column="28" selection-start-line="182" selection-start-column="28" selection-end-line="182" selection-end-column="28" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/qa.jpg">
+    <entry file="file://$PROJECT_DIR$/resources/test4.png">
       <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/test3.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/test2.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/source/DataPrep.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="197">
+          <caret line="77" column="49" selection-start-line="77" selection-start-column="49" selection-end-line="77" selection-end-column="49" />
+          <folding>
+            <element signature="e#1659#1749#0" />
+            <element signature="e#1788#1885#0" />
+            <element signature="e#1918#2001#0" />
+            <element signature="e#2042#2178#0" />
+            <element signature="e#2211#2252#0" />
+            <element signature="e#2400#2996#0" />
+            <element signature="e#2531#2587#0" />
+            <element signature="e#2772#2920#0" />
+          </folding>
+        </state>
+      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/source/Main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="103" lean-forward="true" selection-start-line="103" selection-end-line="103" />
+        <state relative-caret-position="-409">
+          <caret line="12" column="23" selection-start-line="12" selection-start-column="23" selection-end-line="12" selection-end-column="23" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
-            <element signature="e#442#551#0" />
-            <element signature="e#560#1110#0" />
-            <element signature="e#1141#1541#0" />
-            <element signature="e#2555#2908#0" />
+            <element signature="e#1695#2639#0" />
+            <element signature="e#2679#3032#0" />
+            <element signature="e#3073#3522#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
+    <entry file="file://$PROJECT_DIR$/source/Sample.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
+        <state relative-caret-position="102">
+          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
         </state>
       </provider>
     </entry>

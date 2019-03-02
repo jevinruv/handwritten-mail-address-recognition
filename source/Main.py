@@ -9,7 +9,7 @@ from ImagePreProcess import preprocess
 
 path_char_list = '../resources/char-list.txt'
 path_dataset = "../../../../../../Dataset/"
-# fnTrain = "../../../Dataset/"
+# path_dataset = "../../../Dataset/"
 fnInfer = '../resources/test.png'
 path_test_img = '../resources/'
 n_epochs = 1
@@ -48,8 +48,7 @@ class Main:
         print('Training Neural Network Started!')
         self.loader.trainSet()
         self.loader.shuffle()
-        for _ in tqdm(range(int(self.loader.hasNext()))):
-            v = self.loader.hasNext()
+        for _ in tqdm(range(int(self.loader.getBatchCount()))):
             iterInfo = self.loader.getIteratorInfo()
             batch = self.loader.getNext()
             loss = self.model.train_batch(batch)
@@ -61,7 +60,7 @@ class Main:
         numOK = 0
         numTotal = 0
 
-        for _ in tqdm(range(int(self.loader.hasNext()))):
+        for _ in tqdm(range(int(self.loader.getBatchCount()))):
             iterInfo = self.loader.getIteratorInfo()
             # print('Iterator:', iterInfo)
             batch = self.loader.getNext()

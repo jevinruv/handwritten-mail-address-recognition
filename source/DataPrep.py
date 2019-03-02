@@ -8,37 +8,35 @@ from ImagePreProcess import preprocess
 
 class DataPrep:
 
-    def __init__(self, filePath, batchSize, imgSize, maxTextLen):
+    def __init__(self, file_path, batchSize, imgSize, maxTextLen):
         "loader for dataset at given location, preprocess images and text according to parameters"
 
-        assert filePath[-1] == '/'
+        assert file_path[-1] == '/'
 
         self.currIdx = 0
         self.batchSize = batchSize
         self.imgSize = imgSize
         self.samples = []
+        self.file_path = file_path
 
-        f = open(filePath + 'words.txt')
+        f = open(file_path + 'words.txt')
         chars = set()
         for line in f:
             # ignore comment line
             if not line or line[0] == '#':
                 continue
 
-            lineSplit = line.strip().split(' ')
-            assert len(lineSplit) >= 9
+            line_split = line.strip().split(' ')
+            assert len(line_split) >= 9
 
-            # filename: part1-part2-part3 --> part1/part1-part2/part1-part2-part3.png
-            fileNameSplit = lineSplit[0].split('-')
-            fileName = filePath + 'words/' + fileNameSplit[0] + '/' + fileNameSplit[0] + '-' + fileNameSplit[1] + '/' + \
-                       lineSplit[0] + '.png'
+            file_name = self.split_file_name(line_split)
 
             # GT text are columns starting at 9
-            gtText = ' '.join(lineSplit[8:])[:maxTextLen]
+            gtText = ' '.join(line_split[8:])[:maxTextLen]
             chars = chars.union(set(list(gtText)))
 
             # put sample into list
-            self.samples.append(Sample(gtText, fileName))
+            self.samples.append(Sample(gtText, file_name))
 
         # split train 85% and test 15%
         splitIdx = int(0.85 * len(self.samples))
@@ -70,8 +68,21 @@ class DataPrep:
         "current batch index and overall number of batches"
         return (self.currIdx // self.batchSize, len(self.samples) // self.batchSize)
 
-    def hasNext(self):
+    def getBatchCount(self):
         return len(self.samples) / self.batchSize
+
+    def split_file_name(self, line_split):
+        # filename: part1-part2-part3 --> part1/part1-part2/part1-part2-part3.png
+        file_name_split = line_split[0].split('-')
+
+        file_name = self.file_path + 'words/' + \
+                    file_name_split[0] + '/' + \
+                    file_name_split[0] + '-' + \
+                    file_name_split[1] + '/' + \
+                    line_split[0] + '.png'
+        return file_name
+
+    # def split_dataset(self):
 
     # def hasNext(self):
     #     "iterator"
