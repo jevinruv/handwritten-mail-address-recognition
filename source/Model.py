@@ -51,7 +51,6 @@ class Model:
         # create layers
         pool = cnnIn4d  # input to first CNN layer
         for i in range(numLayers):
-            # filter = tf.Variable(tf.truncated_normal([k, k, feature_values[i], feature_values[i + 1]], stddev=0.1))
             filter = tf.Variable(
                 tf.truncated_normal([filter_size[i], filter_size[i], feature_values[i], feature_values[i + 1]],
                                     stddev=0.1))
@@ -61,6 +60,12 @@ class Model:
                                   ksize=(1, poolVals[i][0], poolVals[i][1], 1),
                                   strides=(1, strideVals[i][0], strideVals[i][1], 1),
                                   padding='VALID')
+
+        # layer 1
+        # filter = tf.Variable(tf.truncated_normal([5, 5, 1, 32], stddev=0.1))
+        # conv = tf.nn.conv2d(input=pool, filter=filter, padding='SAME', strides=(1, 1, 1, 1))
+        # relu = tf.nn.relu(conv)
+        # pool = tf.nn.max_pool(relu, ksize=(1, 2, 2, 1), strides=(1, 2, 2, 1), padding='VALID')
 
         return pool
 
@@ -160,9 +165,10 @@ class Model:
         "feed a batch into the NN to train it"
 
         sparse = self.toSparse(batch.gtTexts)
-        (_, lossVal) = self.sess.run([self.optimizer, self.loss],
-                                     feed_dict={self.inputImgs: batch.imgs, self.gtTexts: sparse,
-                                                self.seqLen: [Model.maxTextLen] * Model.batchSize})
+        train_data = {self.inputImgs: batch.imgs, self.gtTexts: sparse,
+                      self.seqLen: [Model.maxTextLen] * Model.batchSize}
+
+        (_, lossVal) = self.sess.run([self.optimizer, self.loss], feed_dict=train_data)
         return lossVal
 
     def inferBatch(self, batch):
