@@ -12,7 +12,7 @@ path_dataset = "../../../../../../Dataset/"
 # path_dataset = "../../../Dataset/"
 fnInfer = '../resources/test.png'
 path_test_img = '../resources/'
-n_epochs = 1
+n_epochs = 2
 
 
 class Main:
