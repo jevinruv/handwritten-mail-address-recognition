@@ -2,10 +2,10 @@ import cv2
 import os
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from DataPrep import DataPrep
+from DataHandler import DataHandler
 from Batch import Batch
 from Model import Model
-from ImagePreProcess import preprocess
+from ImageHandler import preprocess
 
 path_char_list = '../resources/char-list.txt'
 path_dataset = "../../../../../../Dataset/"
@@ -27,7 +27,7 @@ class Main:
     def create_new_model(self):
 
         # load training resources
-        self.loader = DataPrep(path_dataset, Model.batchSize, Model.imgSize, Model.maxTextLen)
+        self.loader = DataHandler(path_dataset, Model.batchSize, Model.imgSize, Model.maxTextLen)
 
         # create TF saved-model
         self.model = Model(self.loader.charList)
