@@ -7,10 +7,10 @@ from Batch import Batch
 from Model import Model
 from ImageHandler import preprocess
 
-path_char_list = '../resources/char-list.txt'
-path_dataset = "../../../../../../Dataset/"
-# path_dataset = "../../../Dataset/"
-fnInfer = '../resources/test.png'
+file_char_list = '../resources/char-list.txt'
+# path_dataset = "../../../../../../Dataset/"
+path_dataset = "../../../Dataset/"
+file_test_img = '../resources/test1.png'
 path_test_img = '../resources/'
 n_epochs = 2
 
@@ -33,7 +33,7 @@ class Main:
         self.model = Model(self.loader.charList)
 
         # save characters of saved-model for inference mode
-        open(path_char_list, 'w').write(str().join(self.loader.charList))
+        open(file_char_list, 'w').write(str().join(self.loader.charList))
 
         for epoch in range(n_epochs):
             print('Epoch ', epoch, ' of ', n_epochs)
@@ -82,8 +82,8 @@ class Main:
     def recognize_text(self):
         "recognize text in image provided by file path"
 
-        self.model = Model(open(path_char_list).read())
-        img = cv2.imread(fnInfer, cv2.IMREAD_GRAYSCALE)
+        self.model = Model(open(file_char_list).read())
+        img = cv2.imread(file_test_img, cv2.IMREAD_GRAYSCALE)
         img = preprocess(img, Model.imgSize)
         batch = Batch(None, [img] * Model.batchSize)
         recognized = self.model.inferBatch(batch)
@@ -105,3 +105,4 @@ class Main:
 main = Main()
 main.create_new_model()
 main.test_extension()
+main.recognize_text()

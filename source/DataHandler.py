@@ -9,7 +9,6 @@ from ImageHandler import preprocess
 class DataHandler:
 
     def __init__(self, file_path, batchSize, imgSize, maxTextLen):
-        "loader for dataset at given location, preprocess images and text according to parameters"
 
         assert file_path[-1] == '/'
 

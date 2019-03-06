@@ -4,7 +4,6 @@ import shutil
 
 
 class Model:
-    "minimalistic TF saved-model for HTR"
 
     # constants
     batchSize = 50
@@ -13,10 +12,10 @@ class Model:
     learning_rate = 0.0001
     path_model = '../saved-model/'
 
-    def __init__(self, charList):
+    def __init__(self, char_list):
         "init saved-model: add CNN, RNN and CTC and initialize TF"
 
-        self.charList = charList
+        self.char_list = char_list
         self.snapID = 0
 
         # CNN
@@ -28,7 +27,7 @@ class Model:
         rnnOut3d = self.build_RNN(cnnOut4d)
 
         # CTC
-        (self.loss, self.decoder) = self.setupCTC(rnnOut3d)
+        (self.loss, self.decoder) = self.build_CTC(rnnOut3d)
 
         # optimizer for NN parameters
         # self.optimizer = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
@@ -46,11 +45,11 @@ class Model:
         filter_size = [5, 5, 3, 3, 3]
         feature_values = [1, 32, 64, 128, 128, 256]
         strideVals = poolVals = [(2, 2), (2, 2), (1, 2), (1, 2), (1, 2)]
-        numLayers = len(strideVals)
+        n_layers = len(strideVals)
 
         # create layers
         pool = cnnIn4d  # input to first CNN layer
-        for i in range(numLayers):
+        for i in range(n_layers):
             filter = tf.Variable(
                 tf.truncated_normal([filter_size[i], filter_size[i], feature_values[i], feature_values[i + 1]],
                                     stddev=0.1))
@@ -77,6 +76,12 @@ class Model:
         numHidden = 256
         cells = [tf.contrib.rnn.LSTMCell(num_units=numHidden, state_is_tuple=True) for _ in range(2)]  # 2 layers
 
+        # cells = []
+        # n_layers = 2
+        # for _ in range(n_layers):
+        #     cells.append(tf.contrib.rnn.LSTMCell(num_units=numHidden, state_is_tuple=True))
+
+
         # stack basic cells
         stacked = tf.contrib.rnn.MultiRNNCell(cells, state_is_tuple=True)
 
@@ -89,10 +94,10 @@ class Model:
         concat = tf.expand_dims(tf.concat([fw, bw], 2), 2)
 
         # project output to chars (including blank): BxTx1x2H -> BxTx1xC -> BxTxC
-        kernel = tf.Variable(tf.truncated_normal([1, 1, numHidden * 2, len(self.charList) + 1], stddev=0.1))
+        kernel = tf.Variable(tf.truncated_normal([1, 1, numHidden * 2, len(self.char_list) + 1], stddev=0.1))
         return tf.squeeze(tf.nn.atrous_conv2d(value=concat, filters=kernel, rate=1, padding='SAME'), axis=[2])
 
-    def setupCTC(self, ctcIn3d):
+    def build_CTC(self, ctcIn3d):
         "create CTC loss and decoder and return them"
         # BxTxC -> TxBxC
         ctcIn3dTBC = tf.transpose(ctcIn3d, [1, 0, 2])
@@ -134,7 +139,7 @@ class Model:
         # go over all texts
         for (batchElement, text) in enumerate(texts):
             # convert to string of label (i.e. class-ids)
-            labelStr = [self.charList.index(c) for c in text]
+            labelStr = [self.char_list.index(c) for c in text]
             # sparse tensor must have size of max. label-string
             if len(labelStr) > shape[1]:
                 shape[1] = len(labelStr)
@@ -159,7 +164,7 @@ class Model:
             encodedLabelStrs[batchElement].append(label)
 
         # map labels to chars for all batch elements
-        return [str().join([self.charList[c] for c in labelStr]) for labelStr in encodedLabelStrs]
+        return [str().join([self.char_list[c] for c in labelStr]) for labelStr in encodedLabelStrs]
 
     def train_batch(self, batch):
         "feed a batch into the NN to train it"
