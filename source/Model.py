@@ -4,7 +4,6 @@ import shutil
 
 
 class Model:
-
     # constants
     batchSize = 50
     imgSize = (128, 32)
@@ -19,9 +18,9 @@ class Model:
         self.snapID = 0
 
         # CNN
-        self.inputImgs = tf.placeholder(tf.float32, shape=(Model.batchSize, Model.imgSize[0], Model.imgSize[1]))
+        self.input_imgs = tf.placeholder(tf.float32, shape=(Model.batchSize, Model.imgSize[0], Model.imgSize[1]))
         # self.inputImgs = tf.placeholder(tf.float32, shape=(Model.batchSize, self.IMG_WIDTH, self.IMG_HEIGHT))
-        cnnOut4d = self.build_CNN(self.inputImgs)
+        cnnOut4d = self.build_CNN(self.input_imgs)
 
         # RNN
         rnnOut3d = self.build_RNN(cnnOut4d)
@@ -48,7 +47,8 @@ class Model:
         n_layers = len(strideVals)
 
         # create layers
-        pool = cnnIn4d  # input to first CNN layer
+        pool = cnnIn4d
+
         for i in range(n_layers):
             filter = tf.Variable(
                 tf.truncated_normal([filter_size[i], filter_size[i], feature_values[i], feature_values[i + 1]],
@@ -59,7 +59,6 @@ class Model:
                                   ksize=(1, poolVals[i][0], poolVals[i][1], 1),
                                   strides=(1, strideVals[i][0], strideVals[i][1], 1),
                                   padding='VALID')
-
         # layer 1
         # filter = tf.Variable(tf.truncated_normal([5, 5, 1, 32], stddev=0.1))
         # conv = tf.nn.conv2d(input=pool, filter=filter, padding='SAME', strides=(1, 1, 1, 1))
@@ -69,23 +68,20 @@ class Model:
         return pool
 
     def build_RNN(self, rnnIn4d):
-        "create RNN layers and return output of these layers"
-        rnnIn3d = tf.squeeze(rnnIn4d, axis=[2])
+
+        rnnIn3d = tf.squeeze(rnnIn4d, axis=[2])  # squeeze remove 1 dimensions, here it removes the 2nd index
 
         # basic cells which is used to build RNN
-        numHidden = 256
-        cells = [tf.contrib.rnn.LSTMCell(num_units=numHidden, state_is_tuple=True) for _ in range(2)]  # 2 layers
+        n_hidden = 256
+        n_layers = 2
 
-        # cells = []
-        # n_layers = 2
-        # for _ in range(n_layers):
-        #     cells.append(tf.contrib.rnn.LSTMCell(num_units=numHidden, state_is_tuple=True))
-
+        cells = []
+        for _ in range(n_layers):
+            cells.append(tf.nn.rnn_cell.LSTMCell(num_units=n_hidden))
 
         # stack basic cells
-        stacked = tf.contrib.rnn.MultiRNNCell(cells, state_is_tuple=True)
+        stacked = tf.nn.rnn_cell.MultiRNNCell(cells)
 
-        # bidirectional RNN
         # BxTxF -> BxTx2H
         ((fw, bw), _) = tf.nn.bidirectional_dynamic_rnn(cell_fw=stacked, cell_bw=stacked, inputs=rnnIn3d,
                                                         dtype=rnnIn3d.dtype)
@@ -94,19 +90,21 @@ class Model:
         concat = tf.expand_dims(tf.concat([fw, bw], 2), 2)
 
         # project output to chars (including blank): BxTx1x2H -> BxTx1xC -> BxTxC
-        kernel = tf.Variable(tf.truncated_normal([1, 1, numHidden * 2, len(self.char_list) + 1], stddev=0.1))
-        return tf.squeeze(tf.nn.atrous_conv2d(value=concat, filters=kernel, rate=1, padding='SAME'), axis=[2])
+        kernel = tf.Variable(tf.truncated_normal([1, 1, n_hidden * 2, len(self.char_list) + 1], stddev=0.1))
+        rnn = tf.nn.atrous_conv2d(value=concat, filters=kernel, rate=1, padding='SAME')
+        return tf.squeeze(rnn, axis=[2])
 
     def build_CTC(self, ctcIn3d):
         "create CTC loss and decoder and return them"
         # BxTxC -> TxBxC
         ctcIn3dTBC = tf.transpose(ctcIn3d, [1, 0, 2])
         # ground truth text as sparse tensor
-        self.gtTexts = tf.SparseTensor(tf.placeholder(tf.int64, shape=[None, 2]), tf.placeholder(tf.int32, [None]),
-                                       tf.placeholder(tf.int64, [2]))
+        self.labels = tf.SparseTensor(tf.placeholder(tf.int64, shape=[None, 2]),
+                                      tf.placeholder(tf.int32, [None]),
+                                      tf.placeholder(tf.int64, [2]))
         # calc loss for batch
         self.seqLen = tf.placeholder(tf.int32, [None])
-        loss = tf.nn.ctc_loss(labels=self.gtTexts, inputs=ctcIn3dTBC, sequence_length=self.seqLen,
+        loss = tf.nn.ctc_loss(labels=self.labels, inputs=ctcIn3dTBC, sequence_length=self.seqLen,
                               ctc_merge_repeated=True)
         decoder = tf.nn.ctc_greedy_decoder(inputs=ctcIn3dTBC, sequence_length=self.seqLen)
         return (tf.reduce_mean(loss), decoder)
@@ -170,7 +168,7 @@ class Model:
         "feed a batch into the NN to train it"
 
         sparse = self.toSparse(batch.gtTexts)
-        train_data = {self.inputImgs: batch.imgs, self.gtTexts: sparse,
+        train_data = {self.input_imgs: batch.imgs, self.labels: sparse,
                       self.seqLen: [Model.maxTextLen] * Model.batchSize}
 
         (_, lossVal) = self.sess.run([self.optimizer, self.loss], feed_dict=train_data)
@@ -180,7 +178,7 @@ class Model:
         "feed a batch into the NN to recngnize the texts"
 
         decoded = self.sess.run(self.decoder,
-                                {self.inputImgs: batch.imgs,
+                                {self.input_imgs: batch.imgs,
                                  self.seqLen: [Model.maxTextLen] * Model.batchSize})
         return self.fromSparse(decoded)
 
