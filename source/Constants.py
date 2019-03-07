@@ -1,4 +1,4 @@
-fnCharList = '../saved-model/char-list.txt'
+fnCharList = '../saved-model/chars.txt'
 # fnTrain = '../resources/'
 fnTrain = "../../../Dataset/"
 fnInfer = '../resources/test.png'

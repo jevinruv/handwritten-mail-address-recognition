@@ -5,8 +5,8 @@ import shutil
 
 class Model:
     # constants
-    batchSize = 50
-    imgSize = (128, 32)
+    batch_size = 50
+    img_size = (128, 32)
     maxTextLen = 32
     learning_rate = 0.0001
     path_model = '../saved-model/'
@@ -18,7 +18,7 @@ class Model:
         self.snapID = 0
 
         # CNN
-        self.input_imgs = tf.placeholder(tf.float32, shape=(Model.batchSize, Model.imgSize[0], Model.imgSize[1]))
+        self.input_imgs = tf.placeholder(tf.float32, shape=(Model.batch_size, Model.img_size[0], Model.img_size[1]))
         # self.inputImgs = tf.placeholder(tf.float32, shape=(Model.batchSize, self.IMG_WIDTH, self.IMG_HEIGHT))
         cnnOut4d = self.build_CNN(self.input_imgs)
 
@@ -71,7 +71,6 @@ class Model:
 
         rnnIn3d = tf.squeeze(rnnIn4d, axis=[2])  # squeeze remove 1 dimensions, here it removes the 2nd index
 
-        # basic cells which is used to build RNN
         n_hidden = 256
         n_layers = 2
 
@@ -79,8 +78,7 @@ class Model:
         for _ in range(n_layers):
             cells.append(tf.nn.rnn_cell.LSTMCell(num_units=n_hidden))
 
-        # stack basic cells
-        stacked = tf.nn.rnn_cell.MultiRNNCell(cells)
+        stacked = tf.nn.rnn_cell.MultiRNNCell(cells)    # combine the 2 LSTMCell created
 
         # BxTxF -> BxTx2H
         ((fw, bw), _) = tf.nn.bidirectional_dynamic_rnn(cell_fw=stacked, cell_bw=stacked, inputs=rnnIn3d,
@@ -92,6 +90,7 @@ class Model:
         # project output to chars (including blank): BxTx1x2H -> BxTx1xC -> BxTxC
         kernel = tf.Variable(tf.truncated_normal([1, 1, n_hidden * 2, len(self.char_list) + 1], stddev=0.1))
         rnn = tf.nn.atrous_conv2d(value=concat, filters=kernel, rate=1, padding='SAME')
+
         return tf.squeeze(rnn, axis=[2])
 
     def build_CTC(self, ctcIn3d):
@@ -106,6 +105,7 @@ class Model:
         self.seqLen = tf.placeholder(tf.int32, [None])
         loss = tf.nn.ctc_loss(labels=self.labels, inputs=ctcIn3dTBC, sequence_length=self.seqLen,
                               ctc_merge_repeated=True)
+
         decoder = tf.nn.ctc_greedy_decoder(inputs=ctcIn3dTBC, sequence_length=self.seqLen)
         return (tf.reduce_mean(loss), decoder)
 
@@ -129,12 +129,12 @@ class Model:
         return (sess, saver)
 
     def toSparse(self, texts):
-        "put ground truth texts into sparse tensor for ctc_loss"
+        "transfor labels into sparse tensor for ctc_loss"
+
         indices = []
         values = []
         shape = [len(texts), 0]  # last entry must be max(labelList[i])
 
-        # go over all texts
         for (batchElement, text) in enumerate(texts):
             # convert to string of label (i.e. class-ids)
             labelStr = [self.char_list.index(c) for c in text]
@@ -154,8 +154,8 @@ class Model:
         decoded = ctcOutput[0][0]
 
         # go over all indices and save mapping: batch -> values
-        idxDict = {b: [] for b in range(Model.batchSize)}
-        encodedLabelStrs = [[] for i in range(Model.batchSize)]
+        idxDict = {b: [] for b in range(Model.batch_size)}
+        encodedLabelStrs = [[] for i in range(Model.batch_size)]
         for (idx, idx2d) in enumerate(decoded.indices):
             label = decoded.values[idx]
             batchElement = idx2d[0]  # index according to [b,t]
@@ -169,7 +169,7 @@ class Model:
 
         sparse = self.toSparse(batch.gtTexts)
         train_data = {self.input_imgs: batch.imgs, self.labels: sparse,
-                      self.seqLen: [Model.maxTextLen] * Model.batchSize}
+                      self.seqLen: [Model.maxTextLen] * Model.batch_size}
 
         (_, lossVal) = self.sess.run([self.optimizer, self.loss], feed_dict=train_data)
         return lossVal
@@ -179,7 +179,7 @@ class Model:
 
         decoded = self.sess.run(self.decoder,
                                 {self.input_imgs: batch.imgs,
-                                 self.seqLen: [Model.maxTextLen] * Model.batchSize})
+                                 self.seqLen: [Model.maxTextLen] * Model.batch_size})
         return self.fromSparse(decoded)
 
     def save(self, accuracy):
