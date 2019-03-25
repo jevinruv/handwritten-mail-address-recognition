@@ -21,6 +21,7 @@ class DataHandler:
         f = open(file_path + 'words.txt')
         chars = set()
         for line in f:
+
             # ignore comment line
             if not line or line[0] == '#':
                 continue
@@ -59,7 +60,6 @@ class DataHandler:
         self.samples = self.validationSamples
 
     def shuffle(self):
-        "shuffle current set"
         self.currIdx = 0
         random.shuffle(self.samples)
 
@@ -81,25 +81,20 @@ class DataHandler:
                     line_split[0] + '.png'
         return file_name
 
-    # def split_dataset(self):
-
     # def hasNext(self):
     #     "iterator"
     #     return self.currIdx + self.batchSize <= len(self.samples)
 
     def getNext(self):
-        "iterator"
+
         gtTexts = []
         imgs = []
 
         batchRange = range(self.currIdx, self.currIdx + self.batchSize)
-        # gtTexts = [self.samples[i].gtText for i in batchRange]
-        # imgs = [preprocess(cv2.imread(self.samples[i].filePath, cv2.IMREAD_GRAYSCALE), self.imgSize) for i in
-        #         batchRange]
 
         for i in batchRange:
-            gtTexts.append(self.samples[i].gtText)
-            imgs.append(preprocess(cv2.imread(self.samples[i].filePath, cv2.IMREAD_GRAYSCALE), self.imgSize))
+            gtTexts.append(self.samples[i].label)
+            imgs.append(preprocess(cv2.imread(self.samples[i].file_path, cv2.IMREAD_GRAYSCALE), self.imgSize))
 
         self.currIdx += self.batchSize
         return Batch(gtTexts, imgs)

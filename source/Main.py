@@ -26,13 +26,12 @@ class Main:
 
     def create_new_model(self):
 
-        # load training resources
-        self.loader = DataHandler(path_dataset, Model.batch_size, Model.img_size, Model.maxTextLen)
+        # load data
+        self.loader = DataHandler(path_dataset, Model.batch_size, Model.img_size, Model.text_length)
 
-        # create TF saved-model
         self.model = Model(self.loader.charList)
 
-        # save characters of saved-model for inference mode
+        # save characters of model for inference mode
         open(file_char_list, 'w').write(str().join(self.loader.charList))
 
         for epoch in range(n_epochs):
@@ -105,4 +104,4 @@ class Main:
 main = Main()
 main.create_new_model()
 main.test_extension()
-main.recognize_text()
+# main.recognize_text()
