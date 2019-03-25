@@ -30,7 +30,7 @@ class Model:
         self.optimizer = tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
 
         # initialize TensorFlow
-        (self.sess, self.saver) = self.setupTF()
+        (self.sess, self.saver) = self.init_TensorFlow()
 
     def build_CNN(self, cnnIn3d):
         "create CNN layers and return output of these layers"
@@ -40,8 +40,8 @@ class Model:
         # list of parameters for the layers
         filter_size = [5, 5, 3, 3, 3]
         feature_values = [1, 32, 64, 128, 128, 256]
-        strideVals = poolVals = [(2, 2), (2, 2), (1, 2), (1, 2), (1, 2)]
-        n_layers = len(strideVals)
+        pool_values = [(2, 2), (2, 2), (1, 2), (1, 2), (1, 2)]
+        n_layers = len(pool_values)
 
         pool = cnnIn4d
 
@@ -53,8 +53,8 @@ class Model:
             conv = tf.nn.conv2d(pool, filter, padding='SAME', strides=(1, 1, 1, 1))
             relu = tf.nn.relu(conv)
             pool = tf.nn.max_pool(relu,
-                                  ksize=(1, poolVals[i][0], poolVals[i][1], 1),
-                                  strides=(1, strideVals[i][0], strideVals[i][1], 1),
+                                  ksize=(1, pool_values[i][0], pool_values[i][1], 1),
+                                  strides=(1, pool_values[i][0], pool_values[i][1], 1),
                                   padding='VALID')
         # layer 1
         # filter = tf.Variable(tf.truncated_normal([5, 5, 1, 32], stddev=0.1))
@@ -106,12 +106,11 @@ class Model:
         decoder = tf.nn.ctc_greedy_decoder(inputs=ctcIn3dTBC, sequence_length=self.seq_length)
         return (tf.reduce_mean(loss), decoder)
 
-    def setupTF(self):
-        "initialize TF"
+    def init_TensorFlow(self):
 
         sess = tf.Session()
 
-        saver = tf.train.Saver()  # saver saves saved-model to file
+        saver = tf.train.Saver()  # saver saves model to file
         latestSnapshot = tf.train.latest_checkpoint('../saved-model/')  # is there a saved saved-model?
 
         # no saved saved-model -> init with new values
@@ -172,8 +171,7 @@ class Model:
         (_, lossVal) = self.sess.run([self.optimizer, self.loss], feed_dict=train_data)
         return lossVal
 
-    def inferBatch(self, batch):
-        "feed a batch into the NN to recngnize the texts"
+    def infer_batch(self, batch):
 
         decoded = self.sess.run(self.decoder,
                                 {self.input_imgs: batch.imgs,

@@ -8,8 +8,8 @@ from Model import Model
 from ImageHandler import preprocess
 
 file_char_list = '../resources/chars.txt'
-# path_dataset = "../../../../../../Dataset/"
-path_dataset = "../../../Dataset/"
+path_dataset = "../../../../../../Dataset/"
+# path_dataset = "../../../Dataset/"
 file_test_img = '../resources/test1.png'
 path_test_img = '../resources/'
 n_epochs = 2
@@ -26,7 +26,7 @@ class Main:
 
     def create_new_model(self):
 
-        # load data
+        # init data preparation
         self.loader = DataHandler(path_dataset, Model.batch_size, Model.img_size, Model.text_length)
 
         self.model = Model(self.loader.charList)
@@ -36,46 +36,51 @@ class Main:
 
         for epoch in range(n_epochs):
             print('Epoch ', epoch, ' of ', n_epochs)
-            self.train()
+            self.train(epoch)
             accuracy = self.test()
             if self.top_accuracy < accuracy:
                 self.top_accuracy = accuracy
                 self.model.save(accuracy)
-            epoch += 1
+            # epoch += 1
 
-    def train(self):
+    def train(self, epoch_index):
         print('Training Neural Network Started!')
+
         self.loader.trainSet()
         self.loader.shuffle()
-        for _ in tqdm(range(int(self.loader.getBatchCount()))):
-            iterInfo = self.loader.getIteratorInfo()
+        n_batch = int(self.loader.getBatchCount())
+
+        for batch_index in tqdm(range(n_batch)):
+            # iterInfo = self.loader.getIteratorInfo()
             batch = self.loader.getNext()
             loss = self.model.train_batch(batch)
             # print('Iterator:', iterInfo, 'Loss:', loss)
 
+        print('Training Neural Network Ended!')
+
     def test(self):
         print('Testing Neural Network Started!')
+
         self.loader.validationSet()
-        numOK = 0
-        numTotal = 0
+        n_correct = 0
+        n_total = 0
 
         for _ in tqdm(range(int(self.loader.getBatchCount()))):
-            iterInfo = self.loader.getIteratorInfo()
+            # iterInfo = self.loader.getIteratorInfo()
             # print('Iterator:', iterInfo)
             batch = self.loader.getNext()
             # loss = self.saved-model.trainBatch(batch)
-            recognized = self.model.inferBatch(batch)
+            recognized = self.model.infer_batch(batch)
 
             # print('Ground truth -> Recognized')
             for i in range(len(recognized)):
-                isOK = batch.gtTexts[i] == recognized[i]
-                # print('[OK]' if isOK else '[ERR]', '"' + batch.gtTexts[i] + '"', '->', '"' + recognized[i] + '"')
-                numOK += 1 if isOK else 0
-                numTotal += 1
+                is_correct = batch.gtTexts[i] == recognized[i]
+                # print('[OK]' if is_correct else '[ERR]', '"' + batch.gtTexts[i] + '"', '->', '"' + recognized[i] + '"')
+                n_correct += 1 if is_correct else 0
+                n_total += 1
 
-        print(" corr ", numOK, " total ", numTotal)
-        accuracy = numOK / numTotal * 100.0
-        print('Correctly recognized words:', accuracy, '%')
+            accuracy = self.calculate_accuracy(n_total, n_correct)
+
         return accuracy
 
     def recognize_text(self):
@@ -85,7 +90,7 @@ class Main:
         img = cv2.imread(file_test_img, cv2.IMREAD_GRAYSCALE)
         img = preprocess(img, Model.img_size)
         batch = Batch(None, [img] * Model.batch_size)
-        recognized = self.model.inferBatch(batch)
+        recognized = self.model.infer_batch(batch)
         print('Image Text: ', recognized[0])
 
     def test_extension(self):
@@ -95,10 +100,20 @@ class Main:
                 img = cv2.imread(path_test_img + img_file, cv2.IMREAD_GRAYSCALE)
                 img = preprocess(img, Model.img_size)
                 batch = Batch(None, [img] * Model.batch_size)
-                recognized = self.model.inferBatch(batch)
+                recognized = self.model.infer_batch(batch)
                 plt.imshow(img)
                 plt.show()
                 print('Image Text: ', recognized[0])
+
+    def calculate_accuracy(self, n_total, n_correct):
+
+        print('Testing Neural Network Ended!')
+        print("Correct ", n_correct, " total ", n_total)
+
+        accuracy = n_correct / n_total * 100.0
+        print(accuracy, '% Correctly recognized words')
+
+        return accuracy
 
 
 main = Main()
