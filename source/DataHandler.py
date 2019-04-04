@@ -2,7 +2,7 @@ import random
 import cv2
 
 from Batch import Batch
-from Sample import Sample
+from ImageInfo import ImageInfo
 from ImageHandler import preprocess
 
 
@@ -36,7 +36,7 @@ class DataHandler:
             chars = chars.union(set(list(gtText)))
 
             # put sample into list
-            self.samples.append(Sample(gtText, file_name))
+            self.samples.append(ImageInfo(gtText, file_name))
 
         # split train 85% and test 15%
         splitIdx = int(0.85 * len(self.samples))

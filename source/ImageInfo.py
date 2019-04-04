@@ -1,4 +1,4 @@
-class Sample:
+class ImageInfo:
     "sample from the dataset"
 
     def __init__(self, label, file_path):
