@@ -1,5 +1,6 @@
 import cv2
 import os
+import tensorflow as tf
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from DataHandler import DataHandler
@@ -36,14 +37,16 @@ class Main:
 
         for epoch in range(n_epochs):
             print('Epoch ', epoch, ' of ', n_epochs)
-            self.train(epoch)
+            self.train()
             accuracy = self.test()
             if self.top_accuracy < accuracy:
                 self.top_accuracy = accuracy
                 self.model.save(accuracy)
-            # epoch += 1
 
-    def train(self, epoch_index):
+            accuracy_summary = tf.Summary(value=[tf.Summary.Value(tag='accuracy', simple_value=accuracy)])
+            self.model.writer.add_summary(accuracy_summary, epoch)
+
+    def train(self):
         print('Training Neural Network Started!')
 
         self.loader.trainSet()
@@ -53,7 +56,7 @@ class Main:
         for batch_index in tqdm(range(n_batch)):
             # iterInfo = self.loader.getIteratorInfo()
             batch = self.loader.getNext()
-            loss = self.model.train_batch(batch)
+            loss = self.model.train_batch(batch, batch_index)
             # print('Iterator:', iterInfo, 'Loss:', loss)
 
         print('Training Neural Network Ended!')
@@ -69,7 +72,6 @@ class Main:
             # iterInfo = self.loader.getIteratorInfo()
             # print('Iterator:', iterInfo)
             batch = self.loader.getNext()
-            # loss = self.saved-model.trainBatch(batch)
             recognized = self.model.infer_batch(batch)
 
             # print('Ground truth -> Recognized')
@@ -79,7 +81,8 @@ class Main:
                 n_correct += 1 if is_correct else 0
                 n_total += 1
 
-            accuracy = self.calculate_accuracy(n_total, n_correct)
+        accuracy = self.calculate_accuracy(n_total, n_correct)
+        print('Testing Neural Network Ended!')
 
         return accuracy
 
@@ -107,7 +110,6 @@ class Main:
 
     def calculate_accuracy(self, n_total, n_correct):
 
-        print('Testing Neural Network Ended!')
         print("Correct ", n_correct, " total ", n_total)
 
         accuracy = n_correct / n_total * 100.0

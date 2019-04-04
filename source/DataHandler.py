@@ -94,7 +94,9 @@ class DataHandler:
 
         for i in batchRange:
             gtTexts.append(self.samples[i].label)
-            imgs.append(preprocess(cv2.imread(self.samples[i].file_path, cv2.IMREAD_GRAYSCALE), self.imgSize))
+            img = cv2.imread(self.samples[i].file_path, cv2.IMREAD_GRAYSCALE)
+            img = preprocess(img, self.imgSize)
+            imgs.append(img)
 
         self.currIdx += self.batchSize
         return Batch(gtTexts, imgs)

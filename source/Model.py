@@ -26,11 +26,15 @@ class Model:
 
         # CTC
         (self.loss, self.decoder) = self.build_CTC(rnnOut3d)
+        self.training_loss_summary = tf.summary.scalar('loss', self.loss)  # Tensorboard: Track loss
 
         self.optimizer = tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
 
         # initialize TensorFlow
         (self.sess, self.saver) = self.init_TensorFlow()
+
+        self.writer = tf.summary.FileWriter('./logs', self.sess.graph)  # Tensorboard: Create writer
+        self.merge = tf.summary.merge([self.training_loss_summary])  # Tensorboard: Merge
 
     def build_CNN(self, cnnIn3d):
         "create CNN layers and return output of these layers"
@@ -161,14 +165,17 @@ class Model:
         # map labels to chars for all batch elements
         return [str().join([self.char_list[c] for c in labelStr]) for labelStr in encodedLabelStrs]
 
-    def train_batch(self, batch):
+    def train_batch(self, batch, batch_index):
         "feed a batch into the NN to train it"
 
         sparse = self.encode(batch.gtTexts)
         train_data = {self.input_imgs: batch.imgs, self.labels: sparse,
                       self.seq_length: [Model.text_length] * Model.batch_size}
 
-        (_, lossVal) = self.sess.run([self.optimizer, self.loss], feed_dict=train_data)
+        (loss_summary, _, lossVal) = self.sess.run([self.merge, self.optimizer, self.loss], feed_dict=train_data)
+
+        self.writer.add_summary(loss_summary, batch_index)  # Tensorboard: Add loss_summary to writer
+
         return lossVal
 
     def infer_batch(self, batch):

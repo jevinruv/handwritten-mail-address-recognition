@@ -101,7 +101,7 @@ def preprocess_mod():
 # plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 # plt.show()
 #
-# img1 = cv2.imread('../resources/test1.png', cv2.IMREAD_GRAYSCALE)
-# plt.imshow(img1, cmap='gray')
-# plt.show()
+img1 = cv2.imread('../resources/test1.png', cv2.IMREAD_GRAYSCALE)
+plt.imshow(img1, cmap='gray')
+plt.show()
 
