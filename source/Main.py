@@ -73,7 +73,7 @@ class Main:
 
             # print('Ground truth -> Recognized')
             for i in range(len(recognized)):
-                is_correct = batch.gtTexts[i] == recognized[i]
+                is_correct = batch.labels[i] == recognized[i]
                 # print('[OK]' if is_correct else '[ERR]', '"' + batch.gtTexts[i] + '"', '->', '"' + recognized[i] + '"')
                 n_correct += 1 if is_correct else 0
                 n_total += 1

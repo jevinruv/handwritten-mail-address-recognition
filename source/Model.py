@@ -168,7 +168,7 @@ class Model:
     def train_batch(self, batch, batch_index):
         "feed a batch into the NN to train it"
 
-        sparse = self.encode(batch.gtTexts)
+        sparse = self.encode(batch.labels)
         train_data = {self.input_imgs: batch.imgs,
                       self.labels: sparse,
                       self.seq_length: [Model.text_length] * Model.batch_size}

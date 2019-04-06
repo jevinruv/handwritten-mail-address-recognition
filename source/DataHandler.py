@@ -31,12 +31,12 @@ class DataHandler:
 
             file_name = self.split_file_name(line_split)
 
-            # GT text are columns starting at 9
-            gtText = ' '.join(line_split[8:])[:maxTextLen]
-            chars = chars.union(set(list(gtText)))
+            # label is the column starting at 9
+            label = ' '.join(line_split[8:])[:maxTextLen]
+            chars = chars.union(set(list(label)))
 
             # put sample into list
-            self.samples.append(ImageInfo(gtText, file_name))
+            self.samples.append(ImageInfo(label, file_name))
 
         # split train 85% and test 15%
         splitIdx = int(0.85 * len(self.samples))
@@ -87,16 +87,16 @@ class DataHandler:
 
     def getNext(self):
 
-        gtTexts = []
+        labels = []
         imgs = []
 
         batchRange = range(self.currIdx, self.currIdx + self.batchSize)
 
         for i in batchRange:
-            gtTexts.append(self.samples[i].label)
+            labels.append(self.samples[i].label)
             img = cv2.imread(self.samples[i].file_path, cv2.IMREAD_GRAYSCALE)
             img = preprocess(img, self.imgSize)
             imgs.append(img)
 
         self.currIdx += self.batchSize
-        return Batch(gtTexts, imgs)
+        return Batch(labels, imgs)
