@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 
 
 def preprocess(img, imgSize):
-    # there are damaged files in IAM dataset - just use black image instead
+
+    # transform damaged files to black images
     if img is None:
         img = np.zeros([1, 1])
 

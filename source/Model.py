@@ -2,6 +2,8 @@ import tensorflow as tf
 import os
 import shutil
 
+from docutils.nodes import section
+
 
 class Model:
     batch_size = 50
@@ -26,15 +28,11 @@ class Model:
 
         # CTC
         (self.loss, self.decoder) = self.build_CTC(rnnOut3d)
-        self.training_loss_summary = tf.summary.scalar('loss', self.loss)  # Tensorboard: Track loss
 
         self.optimizer = tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
 
         # initialize TensorFlow
         (self.sess, self.saver) = self.init_TensorFlow()
-
-        self.writer = tf.summary.FileWriter('./logs', self.sess.graph)  # Tensorboard: Create writer
-        self.merge = tf.summary.merge([self.training_loss_summary])  # Tensorboard: Merge
 
     def build_CNN(self, cnnIn3d):
         "create CNN layers and return output of these layers"
@@ -115,7 +113,7 @@ class Model:
         sess = tf.Session()
 
         saver = tf.train.Saver()  # saver saves model to file
-        latestSnapshot = tf.train.latest_checkpoint('../saved-model/')  # is there a saved saved-model?
+        latestSnapshot = tf.train.latest_checkpoint(self.path_model)  # is there a saved saved-model?
 
         # no saved saved-model -> init with new values
         if not latestSnapshot:
@@ -172,9 +170,7 @@ class Model:
         train_data = {self.input_imgs: batch.imgs, self.labels: sparse,
                       self.seq_length: [Model.text_length] * Model.batch_size}
 
-        (loss_summary, _, lossVal) = self.sess.run([self.merge, self.optimizer, self.loss], feed_dict=train_data)
-
-        self.writer.add_summary(loss_summary, batch_index)  # Tensorboard: Add loss_summary to writer
+        (_, lossVal) = self.sess.run([self.optimizer, self.loss], feed_dict=train_data)
 
         return lossVal
 

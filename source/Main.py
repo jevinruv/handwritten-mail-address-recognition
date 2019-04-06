@@ -43,9 +43,6 @@ class Main:
                 self.top_accuracy = accuracy
                 self.model.save(accuracy)
 
-            accuracy_summary = tf.Summary(value=[tf.Summary.Value(tag='accuracy', simple_value=accuracy)])
-            self.model.writer.add_summary(accuracy_summary, epoch)
-
     def train(self):
         print('Training Neural Network Started!')
 
