@@ -41,11 +41,11 @@ class Model:
 
         pool = cnnIn4d
 
-        pool = self.create_CNN(pool, filter_size=5, in_features=1, out_features=32, max_pool=(2,2))
-        pool = self.create_CNN(pool, filter_size=5, in_features=32, out_features=64, max_pool=(2,2))
-        pool = self.create_CNN(pool, filter_size=3, in_features=64, out_features=128, max_pool=(1,2))
-        pool = self.create_CNN(pool, filter_size=3, in_features=128, out_features=128, max_pool=(1,2))
-        pool = self.create_CNN(pool, filter_size=3, in_features=128, out_features=256, max_pool=(1,2))
+        pool = self.create_CNN(pool, filter_size=5, in_features=1, out_features=32, max_pool=(2, 2))
+        pool = self.create_CNN(pool, filter_size=5, in_features=32, out_features=64, max_pool=(2, 2))
+        pool = self.create_CNN(pool, filter_size=3, in_features=64, out_features=128, max_pool=(1, 2))
+        pool = self.create_CNN(pool, filter_size=3, in_features=128, out_features=128, max_pool=(1, 2))
+        pool = self.create_CNN(pool, filter_size=3, in_features=128, out_features=256, max_pool=(1, 2))
 
         return pool
 
@@ -169,7 +169,8 @@ class Model:
         "feed a batch into the NN to train it"
 
         sparse = self.encode(batch.gtTexts)
-        train_data = {self.input_imgs: batch.imgs, self.labels: sparse,
+        train_data = {self.input_imgs: batch.imgs,
+                      self.labels: sparse,
                       self.seq_length: [Model.text_length] * Model.batch_size}
 
         (_, lossVal) = self.sess.run([self.optimizer, self.loss], feed_dict=train_data)
@@ -178,9 +179,10 @@ class Model:
 
     def infer_batch(self, batch):
 
-        decoded = self.sess.run(self.decoder,
-                                {self.input_imgs: batch.imgs,
-                                 self.seq_length: [Model.text_length] * Model.batch_size})
+        infer_data = {self.input_imgs: batch.imgs,
+                      self.seq_length: [Model.text_length] * Model.batch_size}
+
+        decoded = self.sess.run(self.decoder, feed_dict=infer_data)
         return self.decode(decoded)
 
     def save(self, accuracy):
