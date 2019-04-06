@@ -39,25 +39,27 @@ class Model:
 
         cnnIn4d = tf.expand_dims(input=cnnIn3d, axis=3)
 
-        # list of parameters for the layers
-        filter_size = [5, 5, 3, 3, 3]
-        feature_values = [1, 32, 64, 128, 128, 256]
-        pool_values = [(2, 2), (2, 2), (1, 2), (1, 2), (1, 2)]
-        n_layers = len(pool_values)
-
         pool = cnnIn4d
 
-        for i in range(n_layers):
-            # initialize weights
-            filter = tf.Variable(
-                tf.truncated_normal([filter_size[i], filter_size[i], feature_values[i], feature_values[i + 1]],
-                                    stddev=0.1))
-            conv = tf.nn.conv2d(pool, filter, padding='SAME', strides=(1, 1, 1, 1))
-            relu = tf.nn.relu(conv)
-            pool = tf.nn.max_pool(relu,
-                                  ksize=(1, pool_values[i][0], pool_values[i][1], 1),
-                                  strides=(1, pool_values[i][0], pool_values[i][1], 1),
-                                  padding='VALID')
+        pool = self.create_CNN(pool, filter_size=5, in_features=1, out_features=32, max_pool=(2,2))
+        pool = self.create_CNN(pool, filter_size=5, in_features=32, out_features=64, max_pool=(2,2))
+        pool = self.create_CNN(pool, filter_size=3, in_features=64, out_features=128, max_pool=(1,2))
+        pool = self.create_CNN(pool, filter_size=3, in_features=128, out_features=128, max_pool=(1,2))
+        pool = self.create_CNN(pool, filter_size=3, in_features=128, out_features=256, max_pool=(1,2))
+
+        return pool
+
+    def create_CNN(self, pool, filter_size, in_features, out_features, max_pool):
+
+        # initialize weights
+        filter = tf.Variable(tf.truncated_normal([filter_size, filter_size, in_features, out_features], stddev=0.1))
+
+        conv = tf.nn.conv2d(pool, filter, padding='SAME', strides=(1, 1, 1, 1))
+        relu = tf.nn.relu(conv)
+        pool = tf.nn.max_pool(relu,
+                              ksize=(1, max_pool[0], max_pool[1], 1),
+                              strides=(1, max_pool[0], max_pool[1], 1),
+                              padding='VALID')
         # layer 1
         # filter = tf.Variable(tf.truncated_normal([5, 5, 1, 32], stddev=0.1))
         # conv = tf.nn.conv2d(input=pool, filter=filter, padding='SAME', strides=(1, 1, 1, 1)) # strides=[1, 1, 1, 1], the filter window will move 1 batch, 1 height pixel, 1 width pixel and 1 color pixel
