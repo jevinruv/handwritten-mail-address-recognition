@@ -44,18 +44,16 @@ class DataHandler:
         self.validationSamples = self.samples[splitIdx:]
 
         # start with train set
-        self.trainSet()
+        self.set_train_data()
 
         # list of all chars in dataset
         self.charList = sorted(list(chars))
 
-    def trainSet(self):
-        "switch to training set"
+    def set_train_data(self):
         self.currIdx = 0
         self.samples = self.trainSamples
 
-    def validationSet(self):
-        "switch to validation set"
+    def set_test_data(self):
         self.currIdx = 0
         self.samples = self.validationSamples
 
@@ -67,7 +65,7 @@ class DataHandler:
         "current batch index and overall number of batches"
         return (self.currIdx // self.batchSize, len(self.samples) // self.batchSize)
 
-    def getBatchCount(self):
+    def get_batch_count(self):
         return len(self.samples) / self.batchSize
 
     def split_file_name(self, line_split):
@@ -85,7 +83,7 @@ class DataHandler:
     #     "iterator"
     #     return self.currIdx + self.batchSize <= len(self.samples)
 
-    def getNext(self):
+    def get_next(self):
 
         labels = []
         imgs = []

@@ -46,13 +46,13 @@ class Main:
     def train(self):
         print('Training Neural Network Started!')
 
-        self.loader.trainSet()
+        self.loader.set_train_data()
         self.loader.shuffle()
-        n_batch = int(self.loader.getBatchCount())
+        n_batch = int(self.loader.get_batch_count())
 
         for batch_index in tqdm(range(n_batch)):
             # iterInfo = self.loader.getIteratorInfo()
-            batch = self.loader.getNext()
+            batch = self.loader.get_next()
             loss = self.model.train_batch(batch, batch_index)
             # print('Iterator:', iterInfo, 'Loss:', loss)
 
@@ -61,14 +61,14 @@ class Main:
     def test(self):
         print('Testing Neural Network Started!')
 
-        self.loader.validationSet()
+        self.loader.set_test_data()
         n_correct = 0
         n_total = 0
 
-        for _ in tqdm(range(int(self.loader.getBatchCount()))):
+        for _ in tqdm(range(int(self.loader.get_batch_count()))):
             # iterInfo = self.loader.getIteratorInfo()
             # print('Iterator:', iterInfo)
-            batch = self.loader.getNext()
+            batch = self.loader.get_next()
             recognized = self.model.infer_batch(batch)
 
             # print('Ground truth -> Recognized')
@@ -84,7 +84,6 @@ class Main:
         return accuracy
 
     def recognize_text(self):
-        "recognize text in image provided by file path"
 
         self.model = Model(open(file_char_list).read())
         img = cv2.imread(file_test_img, cv2.IMREAD_GRAYSCALE)

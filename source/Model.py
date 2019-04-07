@@ -35,21 +35,20 @@ class Model:
         (self.sess, self.saver) = self.init_TensorFlow()
 
     def build_CNN(self, cnnIn3d):
-        "create CNN layers and return output of these layers"
 
         cnnIn4d = tf.expand_dims(input=cnnIn3d, axis=3)
 
         pool = cnnIn4d
 
-        pool = self.create_CNN(pool, filter_size=5, in_features=1, out_features=32, max_pool=(2, 2))
-        pool = self.create_CNN(pool, filter_size=5, in_features=32, out_features=64, max_pool=(2, 2))
-        pool = self.create_CNN(pool, filter_size=3, in_features=64, out_features=128, max_pool=(1, 2))
-        pool = self.create_CNN(pool, filter_size=3, in_features=128, out_features=128, max_pool=(1, 2))
-        pool = self.create_CNN(pool, filter_size=3, in_features=128, out_features=256, max_pool=(1, 2))
+        pool = self.create_CNN_layer(pool, filter_size=5, in_features=1, out_features=32, max_pool=(2, 2))
+        pool = self.create_CNN_layer(pool, filter_size=5, in_features=32, out_features=64, max_pool=(2, 2))
+        pool = self.create_CNN_layer(pool, filter_size=3, in_features=64, out_features=128, max_pool=(1, 2))
+        pool = self.create_CNN_layer(pool, filter_size=3, in_features=128, out_features=128, max_pool=(1, 2))
+        pool = self.create_CNN_layer(pool, filter_size=3, in_features=128, out_features=256, max_pool=(1, 2))
 
         return pool
 
-    def create_CNN(self, pool, filter_size, in_features, out_features, max_pool):
+    def create_CNN_layer(self, pool, filter_size, in_features, out_features, max_pool):
 
         # initialize weights
         filter = tf.Variable(tf.truncated_normal([filter_size, filter_size, in_features, out_features], stddev=0.1))
@@ -96,6 +95,7 @@ class Model:
 
     def build_CTC(self, ctcIn3d):
         "create CTC loss and decoder and return them"
+
         # BxTxC -> TxBxC
         ctcIn3dTBC = tf.transpose(ctcIn3d, [1, 0, 2])
         # ground truth text as sparse tensor
@@ -129,7 +129,7 @@ class Model:
         return (sess, saver)
 
     def encode(self, texts):
-        "transform labels into sparse tensor for ctc_loss"
+        "transform labels to sparse tensor"
 
         indices = []
         values = []
@@ -149,7 +149,7 @@ class Model:
         return (indices, values, shape)
 
     def decode(self, ctcOutput):
-        "extract texts from sparse tensor"
+        "transform sparse tensor to labels"
 
         # ctc returns tuple, first element is SparseTensor
         decoded = ctcOutput[0][0]
@@ -166,7 +166,6 @@ class Model:
         return [str().join([self.char_list[c] for c in labelStr]) for labelStr in encodedLabelStrs]
 
     def train_batch(self, batch, batch_index):
-        "feed a batch into the NN to train it"
 
         sparse = self.encode(batch.labels)
         train_data = {self.input_imgs: batch.imgs,
