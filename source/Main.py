@@ -8,11 +8,11 @@ from Batch import Batch
 from Model import Model
 from ImageHandler import preprocess
 
-file_char_list = '../resources/chars.txt'
 path_dataset = "../../../../../../Dataset/"
 # path_dataset = "../../../Dataset/"
-file_test_img = '../resources/test1.png'
 path_test_img = '../resources/'
+file_char_list = '../resources/chars.txt'
+file_test_img = '../resources/test1.png'
 n_epochs = 2
 
 
@@ -83,27 +83,6 @@ class Main:
 
         return accuracy
 
-    def recognize_text(self):
-
-        self.model = Model(open(file_char_list).read())
-        img = cv2.imread(file_test_img, cv2.IMREAD_GRAYSCALE)
-        img = preprocess(img, Model.img_size)
-        batch = Batch(None, [img] * Model.batch_size)
-        recognized = self.model.infer_batch(batch)
-        print('Image Text: ', recognized[0])
-
-    def test_extension(self):
-
-        for img_file in os.listdir(path_test_img):
-            if img_file.endswith(".png"):
-                img = cv2.imread(path_test_img + img_file, cv2.IMREAD_GRAYSCALE)
-                img = preprocess(img, Model.img_size)
-                batch = Batch(None, [img] * Model.batch_size)
-                recognized = self.model.infer_batch(batch)
-                plt.imshow(img)
-                plt.show()
-                print('Image Text: ', recognized[0])
-
     def calculate_accuracy(self, n_total, n_correct):
 
         print("Correct ", n_correct, " total ", n_total)
@@ -116,5 +95,4 @@ class Main:
 
 main = Main()
 main.create_new_model()
-main.test_extension()
-# main.recognize_text()
+
