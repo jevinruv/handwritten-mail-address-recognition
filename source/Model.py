@@ -113,16 +113,14 @@ class Model:
         sess = tf.Session()
 
         saver = tf.train.Saver()  # saver saves model to file
-        latestSnapshot = tf.train.latest_checkpoint(self.path_model)  # is there a saved saved-model?
+        latest_snapshot = tf.train.latest_checkpoint(self.path_model)  # is there a saved saved-model?
 
-        # no saved saved-model -> init with new values
-        if not latestSnapshot:
+        if not latest_snapshot:
             print('Init with new values')
             sess.run(tf.global_variables_initializer())
-        # init with saved values
         else:
-            print('Init with stored values from ' + latestSnapshot)
-            saver.restore(sess, latestSnapshot)
+            print('Init with stored values from ' + latest_snapshot)
+            saver.restore(sess, latest_snapshot)
 
         return (sess, saver)
 

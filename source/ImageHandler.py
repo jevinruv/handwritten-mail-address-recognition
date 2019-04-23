@@ -2,8 +2,6 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
-file_test_img = '../resources/test1.png'
-
 
 class ImageHandler:
 
@@ -111,6 +109,8 @@ class ImageHandler:
         # cv2.imshow('marked areas', image)
         # cv2.waitKey(0)
         return text_list
+
+# file_test_img = '../resources/test1.png'
 
 # img = cv2.imread(file_test_img)
 # result = preprocess_normal_handwriting(img)

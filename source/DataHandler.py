@@ -8,13 +8,13 @@ from ImageInfo import ImageInfo
 
 class DataHandler:
 
-    def __init__(self, file_path, batchSize, imgSize, maxTextLen):
+    def __init__(self, file_path, batch_size, img_size, maxTextLen):
 
         assert file_path[-1] == '/'
 
-        self.currIdx = 0
-        self.batchSize = batchSize
-        self.imgSize = imgSize
+        self.current_index = 0
+        self.batch_size = batch_size
+        self.img_size = img_size
         self.samples = []
         self.file_path = file_path
 
@@ -22,7 +22,7 @@ class DataHandler:
         chars = set()
         for line in f:
 
-            # ignore comment line
+            # skip comment line
             if not line or line[0] == '#':
                 continue
 
@@ -35,7 +35,6 @@ class DataHandler:
             label = ' '.join(line_split[8:])[:maxTextLen]
             chars = chars.union(set(list(label)))
 
-            # put sample into list
             self.samples.append(ImageInfo(label, file_name))
 
         # split train 85% and test 15%
@@ -50,22 +49,22 @@ class DataHandler:
         self.charList = sorted(list(chars))
 
     def set_train_data(self):
-        self.currIdx = 0
+        self.current_index = 0
         self.samples = self.trainSamples
 
     def set_test_data(self):
-        self.currIdx = 0
+        self.current_index = 0
         self.samples = self.validationSamples
 
     def shuffle(self):
-        self.currIdx = 0
+        self.current_index = 0
         random.shuffle(self.samples)
 
     def getIteratorInfo(self):
-        return (self.currIdx // self.batchSize, len(self.samples) // self.batchSize)
+        return (self.current_index // self.batch_size, len(self.samples) // self.batch_size)
 
     def get_batch_count(self):
-        return len(self.samples) / self.batchSize
+        return len(self.samples) / self.batch_size
 
     def split_file_name(self, line_split):
         # filename: part1-part2-part3 --> part1/part1-part2/part1-part2-part3.png
@@ -86,14 +85,14 @@ class DataHandler:
         labels = []
         imgs = []
 
-        batch_range = range(self.currIdx, self.currIdx + self.batchSize)
+        batch_range = range(self.current_index, self.current_index + self.batch_size)
 
         for i in batch_range:
             labels.append(self.samples[i].label)
             img = cv2.imread(self.samples[i].file_path, cv2.IMREAD_GRAYSCALE)
             img_handler = ImageHandler()
-            img = img_handler.preprocess(img, self.imgSize)
+            img = img_handler.preprocess(img, self.img_size)
             imgs.append(img)
 
-        self.currIdx += self.batchSize
+        self.current_index += self.batch_size
         return Batch(labels, imgs)
