@@ -1,12 +1,7 @@
-import cv2
-import os
-import tensorflow as tf
-import matplotlib.pyplot as plt
 from tqdm import tqdm
+
 from DataHandler import DataHandler
-from Batch import Batch
 from Model import Model
-from ImageHandler import preprocess
 
 path_dataset = "../../../../../../Dataset/"
 # path_dataset = "../../../Dataset/"

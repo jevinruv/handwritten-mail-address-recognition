@@ -2,8 +2,6 @@ import tensorflow as tf
 import os
 import shutil
 
-from docutils.nodes import section
-
 
 class Model:
     batch_size = 50
@@ -190,6 +188,6 @@ class Model:
         shutil.rmtree(self.path_model)
         os.mkdir(self.path_model)
 
-        file_name = self.path_model + 'snapshot-acc ' + str(round(accuracy, 2))
+        file_name = self.path_model + 'Model- ' + str(round(accuracy, 2))
         self.saver.save(self.sess, file_name)
         print('Model Saved! ', file_name)

@@ -3,10 +3,10 @@ import cv2
 import matplotlib.pyplot as plt
 
 from Batch import Batch
-from ImageHandler import preprocess, preprocess_normal_handwriting, split_text
+from ImageHandler import ImageHandler
 from Model import Model
 
-path_test_img = '../resources/'
+path_resources = '../resources/'
 file_char_list = '../resources/chars.txt'
 file_test_img = '../resources/test0.png'
 
@@ -20,16 +20,17 @@ class Demo:
         print("Model Loading Finished")
 
         print("Image Processing Started")
+        img_handler = ImageHandler()
         img = cv2.imread(file_test_img)
-        line_list = split_text(img, 'line')
+        line_list = img_handler.split_text(img, 'line')
 
         for line in line_list:
-            line_segmented = split_text(line, 'word')
+            line_segmented = img_handler.split_text(line, 'word')
 
             for w in line_segmented:
                 img = cv2.cvtColor(w, cv2.COLOR_BGR2GRAY)
-                img = preprocess_normal_handwriting(img)
-                img = preprocess(img, Model.img_size)
+                img = img_handler.preprocess_normal_handwriting(img)
+                img = img_handler.preprocess(img, Model.img_size)
                 word_list.append(img)
         print("Image Processing Finished")
 
@@ -42,7 +43,7 @@ class Demo:
         n_words = len(word_list)
         if (n_words < 50):
             sum = 50 - len(word_list)
-            img = preprocess(None, Model.img_size)
+            img = img_handler.preprocess(None, Model.img_size)
 
             for _ in range(sum):
                 word_list.append(img)
@@ -62,10 +63,11 @@ class Demo:
 def test_extension(self):
     model = Model(open(file_char_list).read())
 
-    for img_file in os.listdir(path_test_img):
+    for img_file in os.listdir(path_resources):
         if img_file.endswith(".png"):
-            img = cv2.imread(path_test_img + img_file, cv2.IMREAD_GRAYSCALE)
-            img = preprocess(img, Model.img_size)
+            img_handler = ImageHandler()
+            img = cv2.imread(path_resources + img_file, cv2.IMREAD_GRAYSCALE)
+            img = img_handler.preprocess(img, Model.img_size)
             batch = Batch(None, [img] * Model.batch_size)
             recognized = model.infer_batch(batch)
             plt.imshow(img)

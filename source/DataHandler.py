@@ -2,8 +2,8 @@ import random
 import cv2
 
 from Batch import Batch
+from ImageHandler import ImageHandler
 from ImageInfo import ImageInfo
-from ImageHandler import preprocess
 
 
 class DataHandler:
@@ -39,11 +39,11 @@ class DataHandler:
             self.samples.append(ImageInfo(label, file_name))
 
         # split train 85% and test 15%
-        splitIdx = int(0.85 * len(self.samples))
-        self.trainSamples = self.samples[:splitIdx]
-        self.validationSamples = self.samples[splitIdx:]
+        split_index = int(0.85 * len(self.samples))
+        self.trainSamples = self.samples[:split_index]
+        self.validationSamples = self.samples[split_index:]
 
-        # start with train set
+        # default dataset
         self.set_train_data()
 
         # list of all chars in dataset
@@ -62,7 +62,6 @@ class DataHandler:
         random.shuffle(self.samples)
 
     def getIteratorInfo(self):
-        "current batch index and overall number of batches"
         return (self.currIdx // self.batchSize, len(self.samples) // self.batchSize)
 
     def get_batch_count(self):
@@ -80,7 +79,6 @@ class DataHandler:
         return file_name
 
     # def hasNext(self):
-    #     "iterator"
     #     return self.currIdx + self.batchSize <= len(self.samples)
 
     def get_next(self):
@@ -88,12 +86,13 @@ class DataHandler:
         labels = []
         imgs = []
 
-        batchRange = range(self.currIdx, self.currIdx + self.batchSize)
+        batch_range = range(self.currIdx, self.currIdx + self.batchSize)
 
-        for i in batchRange:
+        for i in batch_range:
             labels.append(self.samples[i].label)
             img = cv2.imread(self.samples[i].file_path, cv2.IMREAD_GRAYSCALE)
-            img = preprocess(img, self.imgSize)
+            img_handler = ImageHandler()
+            img = img_handler.preprocess(img, self.imgSize)
             imgs.append(img)
 
         self.currIdx += self.batchSize
