@@ -157,6 +157,7 @@ class Model:
         # go over all indices and save mapping: batch -> values
         idxDict = {b: [] for b in range(Model.batch_size)}
         encodedLabelStrs = [[] for i in range(Model.batch_size)]
+
         for (idx, idx2d) in enumerate(decoded.indices):
             label = decoded.values[idx]
             batchElement = idx2d[0]  # index according to [b,t]

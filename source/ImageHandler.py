@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 
 
 def preprocess(img, imgSize):
-
     # transform damaged files to black images
     if img is None:
         img = np.zeros([1, 1])
@@ -32,23 +31,9 @@ def preprocess(img, imgSize):
     img = img / s if s > 0 else img
     return img
 
-# def preprocess(img, imgSize):
-#     img = cv2.resize(img, imgSize)
-#
-#     # increase contrast
-#     pxmin = np.min(img)
-#     pxmax = np.max(img)
-#     imgContrast = (img - pxmin) / (pxmax - pxmin) * 255
-#
-#     # increase line width
-#     kernel = np.ones((3, 3), np.uint8)
-#     imgMorph = cv2.erode(imgContrast, kernel, iterations=1)
-#
-#     return imgMorph
 
-def pre():
-    img = cv2.imread('in.png', cv2.IMREAD_GRAYSCALE)
-    img = cv2.resize(img, (128, 32))
+def preprocess_normal_handwriting(img, imgSize):
+    img = cv2.resize(img, imgSize)
 
     # increase contrast
     pxmin = np.min(img)
@@ -59,14 +44,12 @@ def pre():
     kernel = np.ones((3, 3), np.uint8)
     imgMorph = cv2.erode(imgContrast, kernel, iterations=1)
 
-    # write
-    cv2.imwrite('out.png', imgMorph)
+    return imgMorph
 
 
-def preprocess_mod():
-    img = cv2.imread('in.png', cv2.IMREAD_GRAYSCALE)
+def preprocess_mod(img, imgSize):
 
-    # there are damaged files in IAM dataset - just use black image instead
+    # transform damaged files to black images
     if img is None:
         img = np.zeros([1, 1])
 
@@ -94,6 +77,43 @@ def preprocess_mod():
     plt.show()
 
 
+def split_multi_line_text(file_name):
+
+    line_list = []
+    image = cv2.imread(file_name)
+
+    grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # binarize
+    ret, thresh = cv2.threshold(grayscale, 127, 255, cv2.THRESH_BINARY_INV)
+
+    kernel = np.ones((5, 100), np.uint8)
+    img_dilation = cv2.dilate(thresh, kernel, iterations=1)
+
+    _, contours, _ = cv2.findContours(img_dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # sort contours
+    sorted_contours = sorted(contours, key=lambda ctr: cv2.boundingRect(ctr)[0])
+
+    for i, contour in enumerate(sorted_contours):
+        # apply bounding box
+        x, y, w, h = cv2.boundingRect(contour)
+
+        # retrieve text line & add to list
+        line = image[y:y + h, x:x + w]
+        line_list.append(line)
+
+        # show text line
+        # cv2.imshow('line no:' + str(i), roi)
+        # cv2.rectangle(image, (x, y), (x + w, y + h), (90, 0, 255), 2)
+        # cv2.waitKey(0)
+
+    # cv2.imshow('marked areas', image)
+    # cv2.waitKey(0)
+    return line_list
+
+
+
 # pre()
 # preprocess_mod()
 
@@ -101,8 +121,7 @@ def preprocess_mod():
 # img = cv2.imread('../resources/test1.png')
 # plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 # plt.show()
-#
-img1 = cv2.imread('../resources/test1.png', cv2.IMREAD_GRAYSCALE)
-plt.imshow(img1, cmap='gray')
-plt.show()
 
+# img1 = cv2.imread('../resources/test1.png', cv2.IMREAD_GRAYSCALE)
+# plt.imshow(img1, cmap='gray')
+# plt.show()
