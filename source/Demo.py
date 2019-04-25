@@ -2,26 +2,32 @@ import os
 import cv2
 import matplotlib.pyplot as plt
 
+from Constants import Constants
 from Batch import Batch
 from ImageHandler import ImageHandler
 from Model import Model
 
-path_resources = '../resources/'
-file_char_list = '../resources/chars.txt'
-file_test_img = '../resources/test0.png'
-
 
 class Demo:
+
+    def __init__(self):
+        self.path_resources = Constants.path_resources
+        self.file_char_list = Constants.file_char_list
+        self.file_test_img = Constants.file_test_img
+        self.img_size = Constants.img_size
+        self.batch_size = Constants.batch_size
+
     def recognize_text(self):
         word_list = []
 
         print("Model Loading Started")
-        model = Model(open(file_char_list).read())
+        model = Model(open(self.file_char_list).read())
+        # model = Model()
         print("Model Loading Finished")
 
         print("Image Processing Started")
         img_handler = ImageHandler()
-        img = cv2.imread(file_test_img)
+        img = cv2.imread(self.file_test_img)
         line_list = img_handler.split_text(img, 'line')
 
         for line in line_list:
@@ -30,7 +36,7 @@ class Demo:
             for w in line_segmented:
                 img = cv2.cvtColor(w, cv2.COLOR_BGR2GRAY)
                 img = img_handler.preprocess_normal_handwriting(img)
-                img = img_handler.preprocess(img, Model.img_size)
+                img = img_handler.preprocess(img, self.img_size)
                 word_list.append(img)
         print("Image Processing Finished")
 
@@ -43,7 +49,7 @@ class Demo:
         n_words = len(word_list)
         if (n_words < 50):
             sum = 50 - len(word_list)
-            img = img_handler.preprocess(None, Model.img_size)
+            img = img_handler.preprocess(None, self.img_size)
 
             for _ in range(sum):
                 word_list.append(img)
@@ -61,14 +67,15 @@ class Demo:
 
 
 def test_extension(self):
-    model = Model(open(file_char_list).read())
+    # model = Model()
+    model = Model(open(self.file_char_list).read())
 
-    for img_file in os.listdir(path_resources):
+    for img_file in os.listdir(self.path_resources):
         if img_file.endswith(".png"):
             img_handler = ImageHandler()
-            img = cv2.imread(path_resources + img_file, cv2.IMREAD_GRAYSCALE)
-            img = img_handler.preprocess(img, Model.img_size)
-            batch = Batch(None, [img] * Model.batch_size)
+            img = cv2.imread(self.path_resources + img_file, cv2.IMREAD_GRAYSCALE)
+            img = img_handler.preprocess(img, self.img_size)
+            batch = Batch(None, [img] * self.batch_size)
             recognized = model.infer_batch(batch)
             plt.imshow(img)
             plt.show()

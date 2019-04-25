@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 
 class ImageHandler:
 
-    def preprocess(self, img, imgSize):
+    def preprocess(self, img, img_size):
         # transform damaged files to black images
         if img is None:
             img = np.zeros([1, 1])
 
         # create target image and copy sample image into it
-        (wt, ht) = imgSize
+        (wt, ht) = img_size
         (h, w) = img.shape
         fx = w / wt
         fy = h / ht
@@ -44,34 +44,6 @@ class ImageHandler:
         imgMorph = cv2.erode(imgContrast, kernel, iterations=1)
 
         return imgMorph
-
-    def preprocess_mod(self, img, imgSize):
-        # transform damaged files to black images
-        if img is None:
-            img = np.zeros([1, 1])
-
-        # create target image and copy sample image into it
-        (wt, ht) = (128, 32)
-        (h, w) = img.shape
-        fx = w / wt
-        fy = h / ht
-        f = max(fx, fy)
-        newSize = (min(wt, int(w / f)), min(ht, int(h / f)))
-        img = cv2.resize(img, newSize)
-        target = np.ones([ht, wt]) * 255
-        target[0:newSize[1], 0:newSize[0]] = img
-
-        # transpose for TF
-        img = cv2.transpose(target)
-
-        # normalize
-        (m, s) = cv2.meanStdDev(img)
-        m = m[0][0]
-        s = s[0][0]
-        img = img - m
-        img = img / s if s > 0 else img
-        plt.imshow(img)
-        plt.show()
 
     def split_text(self, img, split_type):
         text_list = []

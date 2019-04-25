@@ -1,6 +1,7 @@
 import random
 import cv2
 
+from Constants import Constants
 from Batch import Batch
 from ImageHandler import ImageHandler
 from ImageInfo import ImageInfo
@@ -8,17 +9,17 @@ from ImageInfo import ImageInfo
 
 class DataHandler:
 
-    def __init__(self, file_path, batch_size, img_size, maxTextLen):
+    def __init__(self):
 
-        assert file_path[-1] == '/'
+        self.batch_size = Constants.batch_size
+        self.img_size = Constants.img_size
+        self.file_path = Constants.path_dataset
+        self.text_length = Constants.text_length
 
-        self.current_index = 0
-        self.batch_size = batch_size
-        self.img_size = img_size
         self.samples = []
-        self.file_path = file_path
+        self.current_index = 0
 
-        f = open(file_path + 'words.txt')
+        f = open(self.file_path + 'words.txt')
         chars = set()
         for line in f:
 
@@ -32,29 +33,29 @@ class DataHandler:
             file_name = self.split_file_name(line_split)
 
             # label is the column starting at 9
-            label = ' '.join(line_split[8:])[:maxTextLen]
+            label = ' '.join(line_split[8:])[:self.text_length]
             chars = chars.union(set(list(label)))
 
             self.samples.append(ImageInfo(label, file_name))
 
         # split train 85% and test 15%
         split_index = int(0.85 * len(self.samples))
-        self.trainSamples = self.samples[:split_index]
-        self.validationSamples = self.samples[split_index:]
+        self.train_samples = self.samples[:split_index]
+        self.test_samples = self.samples[split_index:]
 
         # default dataset
         self.set_train_data()
 
         # list of all chars in dataset
-        self.charList = sorted(list(chars))
+        self.char_list = sorted(list(chars))
 
     def set_train_data(self):
         self.current_index = 0
-        self.samples = self.trainSamples
+        self.samples = self.train_samples
 
     def set_test_data(self):
         self.current_index = 0
-        self.samples = self.validationSamples
+        self.samples = self.test_samples
 
     def shuffle(self):
         self.current_index = 0

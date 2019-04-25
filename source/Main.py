@@ -2,13 +2,7 @@ from tqdm import tqdm
 
 from DataHandler import DataHandler
 from Model import Model
-
-path_dataset = "../../../../../../Dataset/"
-# path_dataset = "../../../Dataset/"
-path_test_img = '../resources/'
-file_char_list = '../resources/chars.txt'
-file_test_img = '../resources/test1.png'
-n_epochs = 2
+from Constants import Constants
 
 
 class Main:
@@ -17,21 +11,22 @@ class Main:
 
         # init class variables
         self.model = None
-        self.loader = None
+        self.data_handler = None
+        self.char_list = Constants.file_char_list
+        self.epochs = Constants.epochs
         self.top_accuracy = 0
 
     def create_new_model(self):
 
-        # init data preparation
-        self.loader = DataHandler(path_dataset, Model.batch_size, Model.img_size, Model.text_length)
-
-        self.model = Model(self.loader.charList)
+        self.data_handler = DataHandler()
+        # self.model = Model()
+        self.model = Model(self.data_handler.char_list)
 
         # save characters of model for inference mode
-        open(file_char_list, 'w').write(str().join(self.loader.charList))
+        open(self.char_list, 'w').write(str().join(self.data_handler.char_list))
 
-        for epoch in range(n_epochs):
-            print('Epoch ', epoch, ' of ', n_epochs)
+        for epoch in range(self.epochs):
+            print('Epoch ', epoch, ' of ', self.epochs)
             self.train()
             accuracy = self.test()
             if self.top_accuracy < accuracy:
@@ -41,13 +36,12 @@ class Main:
     def train(self):
         print('Training Neural Network Started!')
 
-        self.loader.set_train_data()
-        self.loader.shuffle()
-        n_batch = int(self.loader.get_batch_count())
+        self.data_handler.set_train_data()
+        self.data_handler.shuffle()
+        n_batch = int(self.data_handler.get_batch_count())
 
         for batch_index in tqdm(range(n_batch)):
-            # iterInfo = self.loader.getIteratorInfo()
-            batch = self.loader.get_next()
+            batch = self.data_handler.get_next()
             loss = self.model.train_batch(batch, batch_index)
             # print('Iterator:', iterInfo, 'Loss:', loss)
 
@@ -56,14 +50,14 @@ class Main:
     def test(self):
         print('Testing Neural Network Started!')
 
-        self.loader.set_test_data()
+        self.data_handler.set_test_data()
         n_correct = 0
         n_total = 0
 
-        for _ in tqdm(range(int(self.loader.get_batch_count()))):
+        for _ in tqdm(range(int(self.data_handler.get_batch_count()))):
             # iterInfo = self.loader.getIteratorInfo()
             # print('Iterator:', iterInfo)
-            batch = self.loader.get_next()
+            batch = self.data_handler.get_next()
             recognized = self.model.infer_batch(batch)
 
             # print('Ground truth -> Recognized')
@@ -81,7 +75,6 @@ class Main:
     def calculate_accuracy(self, n_total, n_correct):
 
         print("Correct ", n_correct, " total ", n_total)
-
         accuracy = n_correct / n_total * 100.0
         print(accuracy, '% Correctly recognized words')
 
@@ -90,4 +83,3 @@ class Main:
 
 main = Main()
 main.create_new_model()
-
