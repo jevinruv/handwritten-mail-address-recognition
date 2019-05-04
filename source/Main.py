@@ -29,9 +29,11 @@ class Main:
             print('Epoch ', epoch, ' of ', self.epochs)
             self.train()
             accuracy = self.test()
-            if self.top_accuracy < accuracy:
-                self.top_accuracy = accuracy
-                self.model.save(accuracy)
+            self.model.save(accuracy, epoch)
+
+            # if self.top_accuracy < accuracy:
+            #     self.top_accuracy = accuracy
+            #     self.model.save(accuracy)
 
     def train(self):
         print('Training Neural Network Started!')

@@ -37,7 +37,7 @@ class Model:
 
     def build_CNN(self, input_cnn):
 
-        input_4d = tf.expand_dims(input=input_cnn, axis=3)
+        input_4d = tf.expand_dims(input=input_cnn, axis=3)  # adds dimensions of size 1, here it adds to the 3rd index
 
         pool = input_4d
 
@@ -70,7 +70,7 @@ class Model:
 
     def build_RNN(self, input_rnn):
 
-        input_3d = tf.squeeze(input_rnn, axis=[2])  # squeeze remove 1 dimensions, here it removes the 2nd index
+        input_3d = tf.squeeze(input_rnn, axis=[2])  # removes dimensions of size 1, here it removes the 2nd index
 
         n_hidden = 256
         n_layers = 2
@@ -188,11 +188,11 @@ class Model:
         decoded = self.sess.run(self.decoder, feed_dict=infer_data)
         return self.decode(decoded)
 
-    def save(self, accuracy):
+    def save(self, accuracy, epoch):
 
-        shutil.rmtree(self.path_model)
-        os.mkdir(self.path_model)
+        # shutil.rmtree(self.path_model)
+        # os.mkdir(self.path_model)
 
-        file_name = self.path_model + 'Model- ' + str(round(accuracy, 2))
+        file_name = self.path_model + 'Model-Epoch ' + str(epoch) + 'AC ' + str(round(accuracy, 2))
         self.saver.save(self.sess, file_name)
         print('Model Saved! ', file_name)

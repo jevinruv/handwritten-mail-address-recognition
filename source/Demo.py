@@ -30,21 +30,25 @@ class Demo:
         img = cv2.imread(self.file_test_img)
         line_list = img_handler.split_text(img, 'line')
 
-        for line in line_list:
+        for line in reversed(line_list):
             line_segmented = img_handler.split_text(line, 'word')
+            # cv2.imshow('line', line)
+            # cv2.waitKey(0)
 
-            for w in line_segmented:
-                img = cv2.cvtColor(w, cv2.COLOR_BGR2GRAY)
-                img = img_handler.preprocess_normal_handwriting(img)
+            for word in line_segmented:
+                img = cv2.cvtColor(word, cv2.COLOR_BGR2GRAY)
+                # img = img_handler.preprocess_normal_handwriting(img)
                 img = img_handler.preprocess(img, self.img_size)
                 word_list.append(img)
+                # cv2.imshow('word', word)
+                # cv2.waitKey(0)
         print("Image Processing Finished")
 
-        # for word in word_list:
-        # cv2.imshow('word', word)
-        # cv2.waitKey(0)
-        # plt.imshow(word, cmap='gray')
-        # plt.show()
+        # for w in line_list:
+        #     cv2.imshow('word', w)
+        #     cv2.waitKey(0)
+            # plt.imshow(w, cmap='gray')
+            # plt.show()
 
         n_words = len(word_list)
         if (n_words < 50):
