@@ -15,12 +15,15 @@ class DataHandler:
         self.img_size = Constants.img_size
         self.file_path = Constants.path_dataset
         self.text_length = Constants.text_length
+        self.collection_handwritten_words = Constants.file_collection_handwritten_words
+        self.collection_words = Constants.file_collection_words
 
         self.samples = []
         self.current_index = 0
 
         f = open(self.file_path + 'words.txt')
         chars = set()
+
         for line in f:
 
             # skip comment line
@@ -42,6 +45,10 @@ class DataHandler:
         split_index = int(0.85 * len(self.samples))
         self.train_samples = self.samples[:split_index]
         self.test_samples = self.samples[split_index:]
+
+        # put words into lists
+        self.words_train = [x.label for x in self.train_samples]
+        self.words_test = [x.label for x in self.test_samples]
 
         # default dataset
         self.set_train_data()
@@ -78,9 +85,6 @@ class DataHandler:
                     line_split[0] + '.png'
         return file_name
 
-    # def hasNext(self):
-    #     return self.currIdx + self.batchSize <= len(self.samples)
-
     def get_next(self):
 
         labels = []
@@ -97,3 +101,22 @@ class DataHandler:
 
         self.current_index += self.batch_size
         return Batch(labels, imgs)
+
+    def prepare_collection_words(self):
+
+        file1 = open('../resources/collection_road_names.txt', 'r')
+        lines = file1.readlines()
+        road_names = ' '.join([line.strip() for line in lines])
+        file1.close()
+
+        file2 = open(self.collection_handwritten_words, 'r')
+        handwritten_words = file2.read()
+        file2.close()
+
+
+        collection = road_names + handwritten_words
+        # collection = handwritten_words
+
+        file3 = open(self.collection_words, "w")
+        file3.write(collection)
+        file3.close()

@@ -3,12 +3,23 @@ class Constants:
     path_model = '../saved-model/'
     path_dataset = '../../../../../../Dataset/'
     # path_dataset = "../../../Dataset/"
-    
-    file_char_list = path_resources + 'chars.txt'
-    file_test_img = path_resources + 'test0.png'
+    path_test_imgs = path_resources + 'test-imgs'
 
-    epochs = 10
+    file_char_list = path_resources + 'chars.txt'
+    file_word_char_list = path_resources + 'word_chars.txt'
+    # file_corpus = path_resources + 'corpus.txt'
+    file_collection_words = path_resources + 'collection_words.txt'
+    file_collection_handwritten_words = path_resources + 'collection_handwritten_words.txt'
+    file_test_img = path_resources + 'test1.png'
+    file_word_beam_search = path_resources + 'word_beam_search.so'
+
+    num_epochs = 10
     batch_size = 50
     img_size = (128, 32)  # width x height
     text_length = 32
     learning_rate = 0.0001
+
+    decoder_word_beam = 1
+    decoder_best_path = 2
+
+    decoder_selected = decoder_word_beam

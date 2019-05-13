@@ -13,29 +13,35 @@ class Main:
         self.model = None
         self.data_handler = None
         self.char_list = Constants.file_char_list
-        self.epochs = Constants.epochs
+        # self.corpus = Constants.file_corpus
+        self.collection_handwritten_words = Constants.file_collection_handwritten_words
+        self.num_epochs = Constants.num_epochs
         self.top_accuracy = 0
 
     def create_new_model(self):
 
         self.data_handler = DataHandler()
-        # self.model = Model()
-        self.model = Model(self.data_handler.char_list)
 
         # save characters of model for inference mode
         open(self.char_list, 'w').write(str().join(self.data_handler.char_list))
+        # save words contained in dataset into file
+        open(self.collection_handwritten_words, 'w').write(str(' ').join(self.data_handler.words_train + self.data_handler.words_test))
 
-        for epoch in range(self.epochs):
-            print('Epoch ', epoch, ' of ', self.epochs)
+        # self.model = Model()
+        self.model = Model(self.data_handler.char_list)
+
+        for epoch in range(self.num_epochs):
+            print('Epoch ', epoch, ' of ', self.num_epochs)
             self.train()
             accuracy = self.test()
-            self.model.save(accuracy, epoch)
+            self.model.save()
 
             # if self.top_accuracy < accuracy:
             #     self.top_accuracy = accuracy
             #     self.model.save(accuracy)
 
     def train(self):
+
         print('Training Neural Network Started!')
 
         self.data_handler.set_train_data()
@@ -44,28 +50,27 @@ class Main:
 
         for batch_index in tqdm(range(n_batch)):
             batch = self.data_handler.get_next()
-            loss = self.model.train_batch(batch, batch_index)
-            # print('Iterator:', iterInfo, 'Loss:', loss)
+            loss = self.model.batch_train(batch)
 
         print('Training Neural Network Ended!')
 
     def test(self):
+
         print('Testing Neural Network Started!')
 
         self.data_handler.set_test_data()
+        self.data_handler.shuffle()
         n_correct = 0
         n_total = 0
 
         for _ in tqdm(range(int(self.data_handler.get_batch_count()))):
-            # iterInfo = self.loader.getIteratorInfo()
-            # print('Iterator:', iterInfo)
+
             batch = self.data_handler.get_next()
-            recognized = self.model.infer_batch(batch)
+            (recognized, _) = self.model.batch_test(batch)
 
             # print('Ground truth -> Recognized')
             for i in range(len(recognized)):
                 is_correct = batch.labels[i] == recognized[i]
-                # print('[OK]' if is_correct else '[ERR]', '"' + batch.gtTexts[i] + '"', '->', '"' + recognized[i] + '"')
                 n_correct += 1 if is_correct else 0
                 n_total += 1
 

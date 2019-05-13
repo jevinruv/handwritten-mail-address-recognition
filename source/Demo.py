@@ -17,17 +17,16 @@ class Demo:
         self.img_size = Constants.img_size
         self.batch_size = Constants.batch_size
 
-    def recognize_text(self):
-        word_list = []
-
         print("Model Loading Started")
-        model = Model(open(self.file_char_list).read())
-        # model = Model()
+        self.model = Model(open(self.file_char_list).read(), restore_model=True)
         print("Model Loading Finished")
+
+    def recognize_text(self, test_img):
+        word_list = []
 
         print("Image Processing Started")
         img_handler = ImageHandler()
-        img = cv2.imread(self.file_test_img)
+        img = cv2.imread(test_img)
         line_list = img_handler.split_text(img, 'line')
 
         for line in reversed(line_list):
@@ -44,51 +43,32 @@ class Demo:
                 # cv2.waitKey(0)
         print("Image Processing Finished")
 
-        # for w in line_list:
-        #     cv2.imshow('word', w)
-        #     cv2.waitKey(0)
-            # plt.imshow(w, cmap='gray')
-            # plt.show()
-
-        n_words = len(word_list)
-        if (n_words < 50):
-            sum = 50 - len(word_list)
-            img = img_handler.preprocess(None, self.img_size)
-
-            for _ in range(sum):
-                word_list.append(img)
-
         print("Recognizing Text Started")
         batch = Batch(None, word_list)
-        recognized_list = model.infer_batch(batch)
+        (recognized_list, probability) = self.model.batch_test(batch, True)
         # print('Image Text: ', recognized)
 
         text = ''
-        for i in range(n_words):
-            text += recognized_list[i] + ' '
+        for i in recognized_list:
+            text += i + ' '
 
         print('Image Text: ' + text)
+        print("\n")
 
+    def recognize_all(self):
 
-def test_extension(self):
-    # model = Model()
-    model = Model(open(self.file_char_list).read())
+        for file_img in os.listdir(self.path_resources):
+            if file_img.endswith(".png"):
+                self.recognize_text(self.path_resources + file_img)
 
-    for img_file in os.listdir(self.path_resources):
-        if img_file.endswith(".png"):
-            img_handler = ImageHandler()
-            img = cv2.imread(self.path_resources + img_file, cv2.IMREAD_GRAYSCALE)
-            img = img_handler.preprocess(img, self.img_size)
-            batch = Batch(None, [img] * self.batch_size)
-            recognized = model.infer_batch(batch)
-            plt.imshow(img)
-            plt.show()
-            print('Image Text: ', recognized[0])
+    def recognize_single(self):
+
+        self.recognize_text(self.file_test_img)
 
 
 demo = Demo()
-# demo.test_extension()
-demo.recognize_text()
+demo.recognize_all()
+# demo.recognize_single()
 
 # img = cv2.imread('../resources/test1.png', cv2.IMREAD_GRAYSCALE)
 # img = preprocess(img, Model.img_size)
