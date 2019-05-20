@@ -68,9 +68,6 @@ class DataHandler:
         self.current_index = 0
         random.shuffle(self.samples)
 
-    def getIteratorInfo(self):
-        return (self.current_index // self.batch_size, len(self.samples) // self.batch_size)
-
     def get_batch_count(self):
         return len(self.samples) / self.batch_size
 
@@ -112,7 +109,6 @@ class DataHandler:
         file2 = open(self.collection_handwritten_words, 'r')
         handwritten_words = file2.read()
         file2.close()
-
 
         collection = road_names + handwritten_words
         # collection = handwritten_words

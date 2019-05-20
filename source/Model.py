@@ -28,7 +28,6 @@ class Model:
         # Whether to use normalization over a batch or a population
         self.is_train = tf.placeholder(tf.bool, name='is_train')
 
-        # input image batch
         self.input_images = tf.placeholder(tf.float32, shape=(None, self.img_size[0], self.img_size[1]))
 
         self.build_CNN()
@@ -42,7 +41,6 @@ class Model:
         with tf.control_dependencies(self.update_ops):
             self.optimizer = tf.train.RMSPropOptimizer(self.learningRate).minimize(self.loss)
 
-        # initialize TF
         (self.sess, self.saver) = self.build_TF()
 
     def build_CNN(self):
@@ -85,18 +83,25 @@ class Model:
 
         # basic cells which is used to build RNN
         numHidden = 256
-        cells = [tf.contrib.rnn.LSTMCell(num_units=numHidden, state_is_tuple=True) for _ in range(2)]  # 2 layers
+
+        n_hidden = 256
+        n_layers = 2
+        cells = []
+
+        for _ in range(n_layers):
+            cells.append(tf.contrib.rnn.LSTMCell(num_units=n_hidden, state_is_tuple=True))
 
         # stack basic cells
-        stacked = tf.contrib.rnn.MultiRNNCell(cells, state_is_tuple=True)
+        cell_stack = tf.contrib.rnn.MultiRNNCell(cells, state_is_tuple=True)  # combine the 2 LSTMCell created
 
-        # bidirectional RNN
         # BxTxF -> BxTx2H
-        ((fw, bw), _) = tf.nn.bidirectional_dynamic_rnn(cell_fw=stacked, cell_bw=stacked, inputs=rnnIn3d,
+        ((fw, bw), _) = tf.nn.bidirectional_dynamic_rnn(cell_fw=cell_stack,
+                                                        cell_bw=cell_stack,
+                                                        inputs=rnnIn3d,
                                                         dtype=rnnIn3d.dtype)
 
-        # BxTxH + BxTxH -> BxTx2H -> BxTx1X2H
-        concat = tf.expand_dims(tf.concat([fw, bw], 2), 2)
+        rnn = tf.concat([fw, bw], 2)  # BxTxH + BxTxH -> BxTx2H
+        concat = tf.expand_dims(rnn, 2)  # BxTx2H -> BxTx1X2H
 
         # project output to chars (including blank): BxTx1x2H -> BxTx1xC -> BxTxC
         kernel = tf.Variable(tf.truncated_normal([1, 1, numHidden * 2, len(self.char_list) + 1], stddev=0.1))
@@ -159,25 +164,24 @@ class Model:
 
         sess = tf.Session()
 
-        saver = tf.train.Saver(max_to_keep=1)  # saver saves model to file
-        latestSnapshot = tf.train.latest_checkpoint(self.path_model)  # is there a saved model?
+        saver = tf.train.Saver(max_to_keep=1)
+        snapshot_latest = tf.train.latest_checkpoint(self.path_model)
 
-        # if model must be restored (for inference), there must be a snapshot
-        if self.mustRestore and not latestSnapshot:
+        if self.mustRestore and not snapshot_latest:
             raise Exception('Model Not found')
 
         # load saved model if available
-        if latestSnapshot:
-            print('Init with stored values from ' + latestSnapshot)
-            saver.restore(sess, latestSnapshot)
+        if snapshot_latest:
+            print('Restored Values From Model ' + snapshot_latest)
+            saver.restore(sess, snapshot_latest)
         else:
-            print('Init with new values')
+            print('New Values')
             sess.run(tf.global_variables_initializer())
 
         return (sess, saver)
 
     def encode(self, texts):
-        "put ground truth texts into sparse tensor for ctc_loss"
+        "transform labels to sparse tensor"
 
         indices = []
         values = []
@@ -198,7 +202,7 @@ class Model:
         return (indices, values, shape)
 
     def decode(self, ctcOutput, batchSize):
-        "extract texts from output of CTC decoder"
+        "transform sparse tensor to labels"
 
         # contains string of labels for each batch element
         encodedLabelStrs = [[] for i in range(batchSize)]
@@ -253,17 +257,17 @@ class Model:
         "feed a batch into the NN to recognize the texts"
 
         # decode, optionally save RNN output
-        numBatchElements = len(batch.imgs)
+        n_batch_elements = len(batch.imgs)
         evalList = [self.decoder] + ([self.ctcIn3dTBC] if calcProbability else [])
 
         data_test = {self.input_images: batch.imgs,
-                     self.seq_length: [self.text_length] * numBatchElements,
+                     self.seq_length: [self.text_length] * n_batch_elements,
                      self.is_train: False}
 
         evalRes = self.sess.run([self.decoder, self.ctcIn3dTBC], data_test)
 
         decoded = evalRes[0]
-        texts = self.decode(decoded, numBatchElements)
+        texts = self.decode(decoded, n_batch_elements)
 
         # feed RNN output and recognized text into CTC loss to compute labeling probability
         probs = None
@@ -275,7 +279,7 @@ class Model:
 
             data_test = {self.savedCtcInput: ctcInput,
                          self.labels: sparse,
-                         self.seq_length: [self.text_length] * numBatchElements,
+                         self.seq_length: [self.text_length] * n_batch_elements,
                          self.is_train: False}
 
             lossVals = self.sess.run(evalList, data_test)
@@ -284,6 +288,6 @@ class Model:
         return (texts, probs)
 
     def save(self):
-        "save model to file"
+
         self.snapshot_id += 1
         self.saver.save(self.sess, '../saved-model/snapshot', global_step=self.snapshot_id)

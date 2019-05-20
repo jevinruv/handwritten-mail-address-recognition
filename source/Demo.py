@@ -36,7 +36,7 @@ class Demo:
 
             for word in line_segmented:
                 img = cv2.cvtColor(word, cv2.COLOR_BGR2GRAY)
-                # img = img_handler.preprocess_normal_handwriting(img)
+                img = img_handler.preprocess_normal_handwriting(img)
                 img = img_handler.preprocess(img, self.img_size)
                 word_list.append(img)
                 # cv2.imshow('word', word)
