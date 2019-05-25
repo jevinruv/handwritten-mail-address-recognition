@@ -26,21 +26,16 @@ class Demo:
 
         print("Image Processing Started")
         img_handler = ImageHandler()
-        img = cv2.imread(test_img)
-        line_list = img_handler.split_text(img, 'line')
 
-        for line in reversed(line_list):
-            line_segmented = img_handler.split_text(line, 'word')
-            # cv2.imshow('line', line)
+        words = img_handler.split_text(test_img)
+
+        for word in words:
+            img = cv2.cvtColor(word, cv2.COLOR_BGR2GRAY)
+            # img = img_handler.preprocess_normal_handwriting(img)
+            img = img_handler.preprocess(img, self.img_size)
+            word_list.append(img)
+            # cv2.imshow('word', word)
             # cv2.waitKey(0)
-
-            for word in line_segmented:
-                img = cv2.cvtColor(word, cv2.COLOR_BGR2GRAY)
-                img = img_handler.preprocess_normal_handwriting(img)
-                img = img_handler.preprocess(img, self.img_size)
-                word_list.append(img)
-                # cv2.imshow('word', word)
-                # cv2.waitKey(0)
         print("Image Processing Finished")
 
         print("Recognizing Text Started")

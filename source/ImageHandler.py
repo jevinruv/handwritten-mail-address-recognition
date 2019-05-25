@@ -45,42 +45,77 @@ class ImageHandler:
 
         return imgMorph
 
-    def split_text(self, img, split_type):
-        text_list = []
+    def address_to_lines(self, img_address):
+        # grayscale
+        gray = cv2.cvtColor(img_address, cv2.COLOR_BGR2GRAY)
 
-        grayscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # binary
+        ret, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV)
 
-        # binarize
-        ret, thresh = cv2.threshold(grayscale, 127, 255, cv2.THRESH_BINARY_INV)
-
-        if (split_type == 'word'):
-            kernel = np.ones((5, 10), np.uint8)
-        else:
-            kernel = np.ones((5, 100), np.uint8)
-
+        # dilation
+        kernel = np.ones((5, 50), np.uint8)
         img_dilation = cv2.dilate(thresh, kernel, iterations=1)
 
-        _, contours, _ = cv2.findContours(img_dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # find contours
+        im2, ctrs, hier = cv2.findContours(img_dilation.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         # sort contours
-        sorted_contours = sorted(contours, key=lambda ctr: cv2.boundingRect(ctr)[0])
+        sorted_ctrs = sorted(ctrs,
+                             key=lambda ctr: cv2.boundingRect(ctr)[0] + cv2.boundingRect(ctr)[1] * img_address.shape[1])
 
-        for i, contour in enumerate(sorted_contours):
-            # apply bounding box
-            x, y, w, h = cv2.boundingRect(contour)
+        lines = []
 
-            # retrieve text line & add to list
-            line = img[y:y + h, x:x + w]
-            text_list.append(line)
+        for i, ctr in enumerate(sorted_ctrs):
+            # Get bounding box
+            x, y, w, h = cv2.boundingRect(ctr)
 
-            # show text line
-            # cv2.imshow('line no:' + str(i), line)
-            # cv2.rectangle(image, (x, y), (x + w, y + h), (90, 0, 255), 2)
-            # cv2.waitKey(0)
+            # Getting ROI
+            roi = img_address[y:y + h, x:x + w]
 
-        # cv2.imshow('marked areas', image)
-        # cv2.waitKey(0)
-        return text_list
+            lines.append(roi)
+
+        return lines
+
+    def line_to_words(self, img_line):
+        # grayscale
+        gray = cv2.cvtColor(img_line, cv2.COLOR_BGR2GRAY)
+
+        # binary
+        ret, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV)
+
+        # dilation
+        kernel = np.ones((5, 15), np.uint8)
+        img_dilation = cv2.dilate(thresh, kernel, iterations=1)
+
+        # find contours
+        im2, ctrs, hier = cv2.findContours(img_dilation.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # sort contours
+        sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
+
+        words = []
+
+        for i, ctr in enumerate(sorted_ctrs):
+            # Get bounding box
+            x, y, w, h = cv2.boundingRect(ctr)
+
+            # Getting ROI
+            roi = img_line[y:y + h, x:x + w]
+            words.append(roi)
+
+        return words
+
+    def split_text(self, image):
+        word_list = []
+
+        img = cv2.imread(image)
+        lines = self.address_to_lines(img)
+
+        for line in lines:
+            words = self.line_to_words(line)
+            word_list.extend(words)
+
+        return word_list
 
 # file_test_img = '../resources/test1.png'
 
