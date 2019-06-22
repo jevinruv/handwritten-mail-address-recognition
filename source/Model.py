@@ -22,7 +22,6 @@ class Model:
         self.img_size = Constants.img_size
         self.file_word_char_list = Constants.file_word_char_list
         self.file_word_beam_search = Constants.file_word_beam_search
-        # self.file_corpus = Constants.file_corpus
         self.file_collection_words = Constants.file_collection_words
 
         # Whether to use normalization over a batch or a population
@@ -38,6 +37,7 @@ class Model:
         self.batchesTrained = 0
         self.learningRate = tf.placeholder(tf.float32, shape=[])
         self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+
         with tf.control_dependencies(self.update_ops):
             self.optimizer = tf.train.RMSPropOptimizer(self.learningRate).minimize(self.loss)
 
@@ -69,6 +69,7 @@ class Model:
                               ksize=(1, max_pool[0], max_pool[1], 1),
                               strides=(1, max_pool[0], max_pool[1], 1),
                               padding='VALID')
+
         # layer 1
         # filter = tf.Variable(tf.truncated_normal([5, 5, 1, 32], stddev=0.1))
         # conv = tf.nn.conv2d(input=pool, filter=filter, padding='SAME', strides=(1, 1, 1, 1)) # strides=[1, 1, 1, 1], the filter window will move 1 batch, 1 height pixel, 1 width pixel and 1 color pixel
@@ -79,11 +80,10 @@ class Model:
 
     def build_RNN(self):
         "create RNN layers and return output of these layers"
+
         rnnIn3d = tf.squeeze(self.cnnOut4d, axis=[2])
 
         # basic cells which is used to build RNN
-        numHidden = 256
-
         n_hidden = 256
         n_layers = 2
         cells = []
@@ -104,13 +104,14 @@ class Model:
         concat = tf.expand_dims(rnn, 2)  # BxTx2H -> BxTx1X2H
 
         # project output to chars (including blank): BxTx1x2H -> BxTx1xC -> BxTxC
-        kernel = tf.Variable(tf.truncated_normal([1, 1, numHidden * 2, len(self.char_list) + 1], stddev=0.1))
+        kernel = tf.Variable(tf.truncated_normal([1, 1, n_hidden * 2, len(self.char_list) + 1], stddev=0.1))
         rnn = tf.nn.atrous_conv2d(value=concat, filters=kernel, rate=1, padding='SAME')
 
         self.rnnOut3d = tf.squeeze(rnn, axis=[2])
 
     def build_CTC(self):
         "create CTC loss and decoder and return them"
+
         # BxTxC -> TxBxC
         self.ctcIn3dTBC = tf.transpose(self.rnnOut3d, [1, 0, 2])
         # ground truth text as sparse tensor
@@ -120,6 +121,7 @@ class Model:
 
         # calc loss for batch
         self.seq_length = tf.placeholder(tf.int32, [None])
+
         self.loss = tf.reduce_mean(
             tf.nn.ctc_loss(labels=self.labels,
                            inputs=self.ctcIn3dTBC,
@@ -128,10 +130,12 @@ class Model:
 
         # calc loss for each element to compute label probability
         self.savedCtcInput = tf.placeholder(tf.float32, shape=[self.text_length, None, len(self.char_list) + 1])
-        self.lossPerElement = tf.nn.ctc_loss(labels=self.labels, inputs=self.savedCtcInput,
-                                             sequence_length=self.seq_length, ctc_merge_repeated=True)
 
-        # decoder: either best path decoding or beam search decoding
+        self.lossPerElement = tf.nn.ctc_loss(labels=self.labels,
+                                             inputs=self.savedCtcInput,
+                                             sequence_length=self.seq_length,
+                                             ctc_merge_repeated=True)
+
         if self.decoder_selected == Constants.decoder_best_path:
             self.decoder = tf.nn.ctc_greedy_decoder(inputs=self.ctcIn3dTBC, sequence_length=self.seq_length)
 
@@ -140,6 +144,8 @@ class Model:
             self.load_word_beam()
 
     def load_word_beam(self):
+
+        print(">><<< " + self.file_word_beam_search)
 
         word_beam_search_module = tf.load_op_library(self.file_word_beam_search)
 
@@ -194,6 +200,7 @@ class Model:
             # sparse tensor must have size of max. label-string
             if len(labelStr) > shape[1]:
                 shape[1] = len(labelStr)
+
             # put each label into sparse tensor
             for (i, label) in enumerate(labelStr):
                 indices.append([batchElement, i])
@@ -234,7 +241,7 @@ class Model:
     def batch_train(self, batch):
         "feed a batch into the NN to train it"
 
-        numBatchElements = len(batch.imgs)
+        n_batch_elements = len(batch.imgs)
         sparse = self.encode(batch.labels)
 
         rate = 0.01 if self.batchesTrained < 10 else (
@@ -244,7 +251,7 @@ class Model:
 
         data_train = {self.input_images: batch.imgs,
                       self.labels: sparse,
-                      self.seq_length: [self.text_length] * numBatchElements,
+                      self.seq_length: [self.text_length] * n_batch_elements,
                       self.learningRate: rate,
                       self.is_train: True}
 

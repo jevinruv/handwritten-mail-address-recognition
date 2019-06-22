@@ -7,7 +7,6 @@ class Constants:
 
     file_char_list = path_resources + 'chars.txt'
     file_word_char_list = path_resources + 'word_chars.txt'
-    # file_corpus = path_resources + 'corpus.txt'
     file_collection_words = path_resources + 'collection_words.txt'
     file_collection_handwritten_words = path_resources + 'collection_handwritten_words.txt'
     file_test_img = path_resources + 'test1.png'

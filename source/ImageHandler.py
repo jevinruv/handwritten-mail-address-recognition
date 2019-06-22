@@ -108,8 +108,8 @@ class ImageHandler:
     def split_text(self, image):
         word_list = []
 
-        img = cv2.imread(image)
-        lines = self.address_to_lines(img)
+        # img = cv2.imread(image)
+        lines = self.address_to_lines(image)
 
         for line in lines:
             words = self.line_to_words(line)
