@@ -76,7 +76,7 @@ class ImageHandler:
 
         return lines
 
-    def line_to_words(self, img_line):
+    def line_to_words(self, img_line, task):
         # grayscale
         gray = cv2.cvtColor(img_line, cv2.COLOR_BGR2GRAY)
 
@@ -84,7 +84,11 @@ class ImageHandler:
         ret, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV)
 
         # dilation
-        kernel = np.ones((5, 15), np.uint8)
+        kernel = np.ones((5, 7), np.uint8)
+
+        if task == "api":
+            kernel = np.ones((5, 20), np.uint8)
+
         img_dilation = cv2.dilate(thresh, kernel, iterations=1)
 
         # find contours
@@ -105,14 +109,13 @@ class ImageHandler:
 
         return words
 
-    def split_text(self, image):
+    def split_text(self, image, task):
         word_list = []
 
-        # img = cv2.imread(image)
         lines = self.address_to_lines(image)
 
         for line in lines:
-            words = self.line_to_words(line)
+            words = self.line_to_words(line, task)
             word_list.extend(words)
 
         return word_list

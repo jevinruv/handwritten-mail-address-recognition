@@ -3,12 +3,18 @@ class Constants:
     path_model = '../saved-model/'
     path_dataset = '../../../../../../Dataset/'
     # path_dataset = "../../../Dataset/"
+    path_test_addresses = '../../../dataset_addresses/'
     path_test_imgs = path_resources + 'test-imgs'
 
     file_char_list = path_resources + 'chars.txt'
     file_word_char_list = path_resources + 'word_chars.txt'
-    file_collection_words = path_resources + 'collection_words.txt'
+
+    file_collection_words = path_resources + 'collection_words.txt' # will be generated in runtime
+
     file_collection_handwritten_words = path_resources + 'collection_handwritten_words.txt'
+    file_collection_test_address = path_resources + 'collection_test_address.txt'
+    file_collection_address = path_resources + 'collection_address.txt'
+
     file_test_img = path_resources + 'test1.png'
     file_word_beam_search = path_resources + 'word_beam_search.so'
 

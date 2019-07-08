@@ -1,4 +1,3 @@
-import sys
 import numpy as np
 import tensorflow as tf
 
@@ -8,10 +7,10 @@ from DataHandler import DataHandler
 
 class Model:
 
-    def __init__(self, char_list, restore_model=False):
+    def __init__(self, char_list, restore=False):
 
-        self.mustRestore = restore_model
-        self.snapshot_id = 0
+        self.is_restore = restore
+        self.model_id = 0
 
         self.decoder_selected = Constants.decoder_selected
         self.path_model = Constants.path_model
@@ -24,16 +23,17 @@ class Model:
         self.file_word_beam_search = Constants.file_word_beam_search
         self.file_collection_words = Constants.file_collection_words
 
-        # Whether to use normalization over a batch or a population
         self.is_train = tf.placeholder(tf.bool, name='is_train')
-
         self.input_images = tf.placeholder(tf.float32, shape=(None, self.img_size[0], self.img_size[1]))
+
+        self.initialize()
+
+    def initialize(self):
 
         self.build_CNN()
         self.build_RNN()
         self.build_CTC()
 
-        # setup optimizer to train NN
         self.batchesTrained = 0
         self.learningRate = tf.placeholder(tf.float32, shape=[])
         self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
@@ -41,13 +41,27 @@ class Model:
         with tf.control_dependencies(self.update_ops):
             self.optimizer = tf.train.RMSPropOptimizer(self.learningRate).minimize(self.loss)
 
-        (self.sess, self.saver) = self.build_TF()
+        self.sess = tf.Session()
+
+        self.saver = tf.train.Saver(max_to_keep=1)
+        model = tf.train.latest_checkpoint(self.path_model)
+
+        if self.is_restore and not model:
+            raise Exception('Model Not found')
+
+        # load saved model if available
+        if model:
+            print('Restoring Model ' + model)
+            self.saver.restore(self.sess, model)
+        else:
+            print('New Model')
+            self.sess.run(tf.global_variables_initializer())
 
     def build_CNN(self):
 
-        input_4d = tf.expand_dims(input=self.input_images, axis=3)  # adds dimensions of size 1 to the 3rd index
+        cnn_input_4d = tf.expand_dims(input=self.input_images, axis=3)  # adds dimensions of size 1 to the 3rd index
 
-        pool = input_4d
+        pool = cnn_input_4d
 
         pool = self.create_CNN_layer(pool, filter_size=5, in_features=1, out_features=32, max_pool=(2, 2))
         pool = self.create_CNN_layer(pool, filter_size=5, in_features=32, out_features=64, max_pool=(2, 2))
@@ -55,14 +69,14 @@ class Model:
         pool = self.create_CNN_layer(pool, filter_size=3, in_features=128, out_features=128, max_pool=(1, 2))
         pool = self.create_CNN_layer(pool, filter_size=3, in_features=128, out_features=256, max_pool=(1, 2))
 
-        self.cnnOut4d = pool
+        self.cnn_output_4d = pool
 
     def create_CNN_layer(self, pool, filter_size, in_features, out_features, max_pool):
 
         # initialize weights
         filter = tf.Variable(tf.truncated_normal([filter_size, filter_size, in_features, out_features], stddev=0.1))
 
-        conv = tf.nn.conv2d(pool, filter, padding='SAME', strides=(1, 1, 1, 1))
+        conv = tf.nn.conv2d(input=pool, filter=filter, padding='SAME', strides=(1, 1, 1, 1))
         conv_norm = tf.layers.batch_normalization(conv, training=self.is_train)
         relu = tf.nn.relu(conv_norm)
         pool = tf.nn.max_pool(relu,
@@ -79,41 +93,41 @@ class Model:
         return pool
 
     def build_RNN(self):
-        "create RNN layers and return output of these layers"
 
-        rnnIn3d = tf.squeeze(self.cnnOut4d, axis=[2])
+        rnn_input_3d = tf.squeeze(input=self.cnn_output_4d, axis=[2])  # reduces the dimension by deleting 2nd index
 
-        # basic cells which is used to build RNN
-        n_hidden = 256
+        # define no. of cells & layers to build
+        n_cell = 256
         n_layers = 2
         cells = []
 
         for _ in range(n_layers):
-            cells.append(tf.contrib.rnn.LSTMCell(num_units=n_hidden, state_is_tuple=True))
+            cells.append(tf.contrib.rnn.LSTMCell(num_units=n_cell, state_is_tuple=True))
 
-        # stack basic cells
-        cell_stack = tf.contrib.rnn.MultiRNNCell(cells, state_is_tuple=True)  # combine the 2 LSTMCell created
+        # combine the 2 simple LSTM cells sequentially
+        cell_multi = tf.contrib.rnn.MultiRNNCell(cells, state_is_tuple=True)
 
-        # BxTxF -> BxTx2H
-        ((fw, bw), _) = tf.nn.bidirectional_dynamic_rnn(cell_fw=cell_stack,
-                                                        cell_bw=cell_stack,
-                                                        inputs=rnnIn3d,
-                                                        dtype=rnnIn3d.dtype)
+        ((fw, bw), _) = tf.nn.bidirectional_dynamic_rnn(cell_fw=cell_multi,
+                                                        cell_bw=cell_multi,
+                                                        inputs=rnn_input_3d,
+                                                        dtype=rnn_input_3d.dtype)
 
-        rnn = tf.concat([fw, bw], 2)  # BxTxH + BxTxH -> BxTx2H
-        concat = tf.expand_dims(rnn, 2)  # BxTx2H -> BxTx1X2H
+        rnn_combined = tf.concat([fw, bw], 2)  # combine the fw & bw
+        rnn = tf.expand_dims(rnn_combined, 2)  # adds dimensions of size 1 to the 2nd index
 
-        # project output to chars (including blank): BxTx1x2H -> BxTx1xC -> BxTxC
-        kernel = tf.Variable(tf.truncated_normal([1, 1, n_hidden * 2, len(self.char_list) + 1], stddev=0.1))
-        rnn = tf.nn.atrous_conv2d(value=concat, filters=kernel, rate=1, padding='SAME')
+        features_in = n_cell * 2  # no. of input
+        features_out = len(self.char_list) + 1  # no. of output, characters + blank space
 
-        self.rnnOut3d = tf.squeeze(rnn, axis=[2])
+        kernel = tf.Variable(tf.truncated_normal([1, 1, features_in, features_out], stddev=0.1))
+        rnn = tf.nn.atrous_conv2d(value=rnn, filters=kernel, rate=1, padding='SAME')
+
+        self.rnn_output_3d = tf.squeeze(rnn, axis=[2])  # reduces the dimension by deleting 2nd index
 
     def build_CTC(self):
         "create CTC loss and decoder and return them"
 
         # BxTxC -> TxBxC
-        self.ctcIn3dTBC = tf.transpose(self.rnnOut3d, [1, 0, 2])
+        self.ctcIn3dTBC = tf.transpose(self.rnn_output_3d, [1, 0, 2])
         # ground truth text as sparse tensor
         self.labels = tf.SparseTensor(tf.placeholder(tf.int64, shape=[None, 2]),
                                       tf.placeholder(tf.int32, [None]),
@@ -145,8 +159,6 @@ class Model:
 
     def load_word_beam(self):
 
-        print(">><<< " + self.file_word_beam_search)
-
         word_beam_search_module = tf.load_op_library(self.file_word_beam_search)
 
         chars = str().join(self.char_list)
@@ -164,27 +176,6 @@ class Model:
                                                                 collection_words.encode('utf8'),
                                                                 chars.encode('utf8'),
                                                                 word_chars.encode('utf8'))
-
-    def build_TF(self):
-        "initialize TF"
-
-        sess = tf.Session()
-
-        saver = tf.train.Saver(max_to_keep=1)
-        snapshot_latest = tf.train.latest_checkpoint(self.path_model)
-
-        if self.mustRestore and not snapshot_latest:
-            raise Exception('Model Not found')
-
-        # load saved model if available
-        if snapshot_latest:
-            print('Restored Values From Model ' + snapshot_latest)
-            saver.restore(sess, snapshot_latest)
-        else:
-            print('New Values')
-            sess.run(tf.global_variables_initializer())
-
-        return (sess, saver)
 
     def encode(self, texts):
         "transform labels to sparse tensor"
@@ -296,5 +287,5 @@ class Model:
 
     def save(self):
 
-        self.snapshot_id += 1
-        self.saver.save(self.sess, '../saved-model/snapshot', global_step=self.snapshot_id)
+        self.model_id += 1
+        self.saver.save(self.sess, '../saved-model/model', global_step=self.model_id)

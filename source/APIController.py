@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_ngrok import run_with_ngrok
 from flask_cors import cross_origin
+import matplotlib.pyplot as plt
 
 import cv2
 import numpy as np
@@ -37,10 +38,10 @@ def upload_file():
             nparr = np.frombuffer(base64.b64decode(image), np.uint8)
             img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-            text = service.recognize_text(img)
+            text = service.recognize_text(img, "api")
 
-            # plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-            # plt.show()
+            plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+            plt.show()
 
             img_obj = {}
             img_obj['image'] = image

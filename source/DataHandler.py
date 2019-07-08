@@ -15,7 +15,10 @@ class DataHandler:
         self.img_size = Constants.img_size
         self.file_path = Constants.path_dataset
         self.text_length = Constants.text_length
-        self.collection_handwritten_words = Constants.file_collection_handwritten_words
+
+        self.file_collection_handwritten_words = Constants.file_collection_handwritten_words
+        self.file_collection_test_address = Constants.file_collection_test_address
+        self.file_collection_address = Constants.file_collection_address
         self.collection_words = Constants.file_collection_words
 
         self.samples = []
@@ -101,17 +104,17 @@ class DataHandler:
 
     def prepare_collection_words(self):
 
-        file1 = open('../resources/collection_road_names.txt', 'r')
+        file1 = open(self.file_collection_test_address, 'r')
         lines = file1.readlines()
-        road_names = ' '.join([line.strip() for line in lines])
+        addresses_test = ' '.join([line.strip() for line in lines])
         file1.close()
 
-        file2 = open(self.collection_handwritten_words, 'r')
-        handwritten_words = file2.read()
+        file2 = open(self.file_collection_address, 'r')
+        lines2 = file2.readlines()
+        addresses = ' '.join([line.strip() for line in lines2])
         file2.close()
 
-        collection = road_names + handwritten_words
-        # collection = handwritten_words
+        collection = addresses + addresses_test
 
         file3 = open(self.collection_words, "w")
         file3.write(collection)
