@@ -15,7 +15,9 @@ class DataHandler:
         self.img_size = Constants.img_size
         self.file_path = Constants.path_dataset
         self.text_length = Constants.text_length
+        self.train_percentage = Constants.train_percentage
 
+        self.file_words = Constants.file_words
         self.file_collection_handwritten_words = Constants.file_collection_handwritten_words
         self.file_collection_test_address = Constants.file_collection_test_address
         self.file_collection_address = Constants.file_collection_address
@@ -24,17 +26,17 @@ class DataHandler:
         self.samples = []
         self.current_index = 0
 
-        f = open(self.file_path + 'words.txt')
+        f = open(self.file_words)
         chars = set()
 
         for line in f:
 
             # skip comment line
-            if not line or line[0] == '#':
-                continue
+            # if not line or line[0] == '#':
+            #     continue
 
             line_split = line.strip().split(' ')
-            assert len(line_split) >= 9
+            # assert len(line_split) >= 9
 
             file_name = self.split_file_name(line_split)
 
@@ -42,30 +44,35 @@ class DataHandler:
             label = ' '.join(line_split[8:])[:self.text_length]
             chars = chars.union(set(list(label)))
 
-            self.samples.append(ImageInfo(label, file_name))
+            image_info = ImageInfo(label, file_name)
+            self.samples.append(image_info)
 
-        # split train 85% and test 15%
-        split_index = int(0.85 * len(self.samples))
+        n_samples = len(self.samples)
+        split_index = int(self.train_percentage * n_samples)
         self.train_samples = self.samples[:split_index]
         self.test_samples = self.samples[split_index:]
 
-        # put words into lists
-        self.words_train = [x.label for x in self.train_samples]
-        self.words_test = [x.label for x in self.test_samples]
+        self.words_train = []
+        self.words_test = []
 
-        # default dataset
-        self.set_train_data()
+        for sample in self.train_samples:
+            self.words_train.append(sample.label)
 
-        # list of all chars in dataset
+        for sample in self.test_samples:
+            self.words_test.append(sample.label)
+
+        self.set_dataset('train')  # default dataset
+
         self.char_list = sorted(list(chars))
 
-    def set_train_data(self):
-        self.current_index = 0
-        self.samples = self.train_samples
+    def set_dataset(self, dataset):
 
-    def set_test_data(self):
         self.current_index = 0
-        self.samples = self.test_samples
+
+        if dataset == 'train':
+            self.samples = self.train_samples
+        else:
+            self.samples = self.test_samples
 
     def shuffle(self):
         self.current_index = 0
@@ -75,7 +82,7 @@ class DataHandler:
         return len(self.samples) / self.batch_size
 
     def split_file_name(self, line_split):
-        # filename: part1-part2-part3 --> part1/part1-part2/part1-part2-part3.png
+
         file_name_split = line_split[0].split('-')
 
         file_name = self.file_path + 'words/' + \
@@ -83,6 +90,7 @@ class DataHandler:
                     file_name_split[0] + '-' + \
                     file_name_split[1] + '/' + \
                     line_split[0] + '.png'
+
         return file_name
 
     def get_next(self):
@@ -93,8 +101,10 @@ class DataHandler:
         batch_range = range(self.current_index, self.current_index + self.batch_size)
 
         for i in batch_range:
-            labels.append(self.samples[i].label)
-            img = cv2.imread(self.samples[i].file_path, cv2.IMREAD_GRAYSCALE)
+            sample = self.samples[i]
+
+            labels.append(sample.label)
+            img = cv2.imread(sample.file_path, cv2.IMREAD_GRAYSCALE)
             img_handler = ImageHandler()
             img = img_handler.preprocess(img, self.img_size)
             imgs.append(img)

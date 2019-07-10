@@ -34,12 +34,12 @@ class Model:
         self.build_RNN()
         self.build_CTC()
 
-        self.batchesTrained = 0
-        self.learningRate = tf.placeholder(tf.float32, shape=[])
+        self.trained_batches = 0
+        self.learning_rate = tf.placeholder(tf.float32, shape=[])
         self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 
         with tf.control_dependencies(self.update_ops):
-            self.optimizer = tf.train.RMSPropOptimizer(self.learningRate).minimize(self.loss)
+            self.optimizer = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
 
         self.sess = tf.Session()
 
@@ -56,6 +56,11 @@ class Model:
         else:
             print('New Model')
             self.sess.run(tf.global_variables_initializer())
+
+    def save(self):
+
+        self.model_id += 1
+        self.saver.save(self.sess, '../saved-model/model', global_step=self.model_id)
 
     def build_CNN(self):
 
@@ -127,7 +132,8 @@ class Model:
         "create CTC loss and decoder and return them"
 
         # BxTxC -> TxBxC
-        self.ctcIn3dTBC = tf.transpose(self.rnn_output_3d, [1, 0, 2])
+        self.ctc_input_3d = tf.transpose(self.rnn_output_3d, [1, 0, 2])
+
         # ground truth text as sparse tensor
         self.labels = tf.SparseTensor(tf.placeholder(tf.int64, shape=[None, 2]),
                                       tf.placeholder(tf.int32, [None]),
@@ -138,7 +144,7 @@ class Model:
 
         self.loss = tf.reduce_mean(
             tf.nn.ctc_loss(labels=self.labels,
-                           inputs=self.ctcIn3dTBC,
+                           inputs=self.ctc_input_3d,
                            sequence_length=self.seq_length,
                            ctc_merge_repeated=True))
 
@@ -151,10 +157,11 @@ class Model:
                                              ctc_merge_repeated=True)
 
         if self.decoder_selected == Constants.decoder_best_path:
-            self.decoder = tf.nn.ctc_greedy_decoder(inputs=self.ctcIn3dTBC, sequence_length=self.seq_length)
+            print("Decoder Greedy")
+            self.decoder = tf.nn.ctc_greedy_decoder(inputs=self.ctc_input_3d, sequence_length=self.seq_length)
 
         elif self.decoder_selected == Constants.decoder_word_beam:
-            print(">>>>>>>>>>>>>>>>>> Word Beam")
+            print("Decoder Word Beam")
             self.load_word_beam()
 
     def load_word_beam(self):
@@ -169,7 +176,7 @@ class Model:
         collection_words = open(self.file_collection_words).read()
 
         # decode using the "Words" mode of word beam search
-        self.decoder = word_beam_search_module.word_beam_search(tf.nn.softmax(self.ctcIn3dTBC, dim=2),
+        self.decoder = word_beam_search_module.word_beam_search(tf.nn.softmax(self.ctc_input_3d, dim=2),
                                                                 50,
                                                                 'Words',
                                                                 0.0,
@@ -207,7 +214,9 @@ class Model:
 
         # word beam search: label strings terminated by blank
         if self.decoder_selected == Constants.decoder_word_beam:
+
             blank = len(self.char_list)
+
             for b in range(batchSize):
                 for label in ctcOutput[b]:
                     if label == blank:
@@ -221,6 +230,7 @@ class Model:
 
             # go over all indices and save mapping: batch -> values
             idxDict = {b: [] for b in range(batchSize)}
+
             for (idx, idx2d) in enumerate(decoded.indices):
                 label = decoded.values[idx]
                 batchElement = idx2d[0]  # index according to [b,t]
@@ -235,57 +245,42 @@ class Model:
         n_batch_elements = len(batch.imgs)
         sparse = self.encode(batch.labels)
 
-        rate = 0.01 if self.batchesTrained < 10 else (
-            0.001 if self.batchesTrained < 10000 else 0.0001)  # decay learning rate
+        rate = 0
+
+        if self.trained_batches < 10:
+            rate = 0.01
+        else:
+            if self.trained_batches < 10000:
+                rate = 0.001
+            else:
+                rate = 0.0001
 
         evalList = [self.optimizer, self.loss]
 
         data_train = {self.input_images: batch.imgs,
                       self.labels: sparse,
                       self.seq_length: [self.text_length] * n_batch_elements,
-                      self.learningRate: rate,
+                      self.learning_rate: rate,
                       self.is_train: True}
 
         (_, lossVal) = self.sess.run(evalList, data_train)
-        self.batchesTrained += 1
+        self.trained_batches += 1
 
         return lossVal
 
-    def batch_test(self, batch, calcProbability=False, probabilityOfGT=False):
+    def batch_test(self, batch):
         "feed a batch into the NN to recognize the texts"
 
         # decode, optionally save RNN output
         n_batch_elements = len(batch.imgs)
-        evalList = [self.decoder] + ([self.ctcIn3dTBC] if calcProbability else [])
 
         data_test = {self.input_images: batch.imgs,
                      self.seq_length: [self.text_length] * n_batch_elements,
                      self.is_train: False}
 
-        evalRes = self.sess.run([self.decoder, self.ctcIn3dTBC], data_test)
+        evalRes = self.sess.run([self.decoder, self.ctc_input_3d], data_test)
 
         decoded = evalRes[0]
         texts = self.decode(decoded, n_batch_elements)
 
-        # feed RNN output and recognized text into CTC loss to compute labeling probability
-        probs = None
-        if calcProbability:
-            sparse = self.encode(batch.labels) if probabilityOfGT else self.encode(texts)
-            ctcInput = evalRes[1]
-
-            evalList = self.lossPerElement
-
-            data_test = {self.savedCtcInput: ctcInput,
-                         self.labels: sparse,
-                         self.seq_length: [self.text_length] * n_batch_elements,
-                         self.is_train: False}
-
-            lossVals = self.sess.run(evalList, data_test)
-            probs = np.exp(-lossVals)
-
-        return (texts, probs)
-
-    def save(self):
-
-        self.model_id += 1
-        self.saver.save(self.sess, '../saved-model/model', global_step=self.model_id)
+        return texts

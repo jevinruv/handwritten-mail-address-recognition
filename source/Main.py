@@ -9,11 +9,9 @@ class Main:
 
     def __init__(self):
 
-        # init class variables
         self.model = None
         self.data_handler = None
         self.char_list = Constants.file_char_list
-        # self.corpus = Constants.file_corpus
         self.collection_handwritten_words = Constants.file_collection_handwritten_words
         self.num_epochs = Constants.num_epochs
         self.top_accuracy = 0
@@ -44,7 +42,7 @@ class Main:
 
         print('Training Neural Network Started!')
 
-        self.data_handler.set_train_data()
+        self.data_handler.set_dataset('train')
         self.data_handler.shuffle()
         n_batch = int(self.data_handler.get_batch_count())
 
@@ -58,7 +56,7 @@ class Main:
 
         print('Testing Neural Network Started!')
 
-        self.data_handler.set_test_data()
+        self.data_handler.set_dataset('test')
         self.data_handler.shuffle()
         n_correct = 0
         n_total = 0
@@ -66,7 +64,7 @@ class Main:
         for _ in tqdm(range(int(self.data_handler.get_batch_count()))):
 
             batch = self.data_handler.get_next()
-            (recognized, _) = self.model.batch_test(batch)
+            recognized = self.model.batch_test(batch)
 
             # print('Ground truth -> Recognized')
             for i in range(len(recognized)):

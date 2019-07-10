@@ -39,7 +39,7 @@ class Service:
 
         print("Recognizing Text Started")
         batch = Batch(None, word_list)
-        (recognized_list, probability) = self.model.batch_test(batch, True)
+        recognized_list = self.model.batch_test(batch)
         print('Image Text: ', recognized_list)
 
         text = ''
@@ -64,6 +64,6 @@ class Service:
             # cv2.waitKey(0)
 
         batch = Batch(None, word_list)
-        (recognized_list, probability) = self.model.batch_test(batch, True)
+        recognized_list = self.model.batch_test(batch)
 
         return recognized_list
