@@ -9,9 +9,6 @@ class Model:
 
     def __init__(self, char_list, restore=False):
 
-        self.is_restore = restore
-        self.model_id = 0
-
         self.decoder_selected = Constants.decoder_selected
         self.path_model = Constants.path_model
         self.batch_size = Constants.batch_size
@@ -23,6 +20,8 @@ class Model:
         self.file_word_beam_search = Constants.file_word_beam_search
         self.file_collection_words = Constants.file_collection_words
 
+        self.is_restore = restore
+        self.model_id = 0
         self.is_train = tf.placeholder(tf.bool, name='is_train')
         self.input_images = tf.placeholder(tf.float32, shape=(None, self.img_size[0], self.img_size[1]))
 
@@ -206,19 +205,19 @@ class Model:
 
         return (indices, values, shape)
 
-    def decode(self, ctcOutput, batchSize):
+    def decode(self, ctc_output, batch_size):
         "transform sparse tensor to labels"
 
         # contains string of labels for each batch element
-        encodedLabelStrs = [[] for i in range(batchSize)]
+        encodedLabelStrs = [[] for i in range(batch_size)]
 
         # word beam search: label strings terminated by blank
         if self.decoder_selected == Constants.decoder_word_beam:
 
             blank = len(self.char_list)
 
-            for b in range(batchSize):
-                for label in ctcOutput[b]:
+            for b in range(batch_size):
+                for label in ctc_output[b]:
                     if label == blank:
                         break
                     encodedLabelStrs[b].append(label)
@@ -226,18 +225,29 @@ class Model:
         # TF decoders: label strings are contained in sparse tensor
         else:
             # ctc returns tuple, first element is SparseTensor
-            decoded = ctcOutput[0][0]
+            decoded = ctc_output[0][0]
 
             # go over all indices and save mapping: batch -> values
-            idxDict = {b: [] for b in range(batchSize)}
+            idxDict = {b: [] for b in range(batch_size)}
 
             for (idx, idx2d) in enumerate(decoded.indices):
                 label = decoded.values[idx]
                 batchElement = idx2d[0]  # index according to [b,t]
                 encodedLabelStrs[batchElement].append(label)
 
-        # map labels to chars for all batch elements
-        return [str().join([self.char_list[c] for c in labelStr]) for labelStr in encodedLabelStrs]
+        # convert char indexes to words
+        word_list = []
+
+        for labelStr in encodedLabelStrs:
+
+            word = []
+            for c in labelStr:
+                char = self.char_list[c]
+                word.append(char)
+
+            word_list.append(str().join(word))
+
+        return word_list
 
     def batch_train(self, batch):
         "feed a batch into the NN to train it"
@@ -263,10 +273,10 @@ class Model:
                       self.learning_rate: rate,
                       self.is_train: True}
 
-        (_, lossVal) = self.sess.run(evalList, data_train)
+        (_, loss) = self.sess.run(evalList, data_train)
         self.trained_batches += 1
 
-        return lossVal
+        return loss
 
     def batch_test(self, batch):
         "feed a batch into the NN to recognize the texts"
@@ -278,9 +288,9 @@ class Model:
                      self.seq_length: [self.text_length] * n_batch_elements,
                      self.is_train: False}
 
-        evalRes = self.sess.run([self.decoder, self.ctc_input_3d], data_test)
+        result = self.sess.run([self.decoder, self.ctc_input_3d], data_test)
 
-        decoded = evalRes[0]
-        texts = self.decode(decoded, n_batch_elements)
+        char_score = result[0]
+        recognized_texts = self.decode(char_score, n_batch_elements)
 
-        return texts
+        return recognized_texts

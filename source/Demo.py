@@ -13,7 +13,7 @@ class Demo:
     def __init__(self):
 
         self.correct_words = 0
-        self.correct_address = 0
+        self.correct_addresses = 0
 
         self.total_words = 0
         self.total_addresses = 0
@@ -77,7 +77,7 @@ class Demo:
             recognized += i + ' '
 
         if recognized == label:
-            self.correct_address += 1
+            self.correct_addresses += 1
             is_address_accurate = True
 
         accuracy_add = textdistance.levenshtein.normalized_similarity(recognized, label)
@@ -113,7 +113,7 @@ class Demo:
 
         print("##########################################################################################")
         accuracy_words = (self.correct_words / self.total_words) * 100
-        accuracy_addresses = (self.correct_address / self.total_addresses) * 100
+        accuracy_addresses = (self.correct_addresses / self.total_addresses) * 100
         print(">> " + str(accuracy_words) + "%")
         print(">> " + str(accuracy_addresses) + "%")
         print("###########################################################################################")

@@ -46,6 +46,7 @@ class ImageHandler:
         return imgMorph
 
     def address_to_lines(self, img_address):
+
         # grayscale
         gray = cv2.cvtColor(img_address, cv2.COLOR_BGR2GRAY)
 
