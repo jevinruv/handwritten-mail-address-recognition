@@ -15,8 +15,15 @@ class Constants:
     file_collection_words = path_resources + 'collection_words.txt'  # will be generated in runtime
 
     file_collection_handwritten_words = path_resources + 'collection_handwritten_words.txt'
-    file_collection_test_address = path_resources + 'collection_test_address.txt'
+    # file_collection_test_address = path_resources + 'collection_test_address.txt'
     file_collection_address = path_resources + 'collection_address.txt'
+
+    path_test_address_file = path_resources + 'addresses/'
+    file_collection_home_type_1 = path_test_address_file + 'home_type_1.txt'
+    file_collection_home_type_2 = path_test_address_file + 'home_type_2.txt'
+    file_collection_home_type_3 = path_test_address_file + 'home_type_3.txt'
+    file_collection_home_type_4 = path_test_address_file + 'home_type_4.txt'
+    file_collection_company_type_1 = path_test_address_file + 'company_type_1.txt'
 
     file_test_img = path_resources + 'test1.png'
     file_word_beam_search = path_resources + 'word_beam_search.so'

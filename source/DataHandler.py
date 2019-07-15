@@ -19,7 +19,11 @@ class DataHandler:
 
         self.file_words = Constants.file_words
         self.file_collection_handwritten_words = Constants.file_collection_handwritten_words
-        self.file_collection_test_address = Constants.file_collection_test_address
+        self.file_collection_home_type_1 = Constants.file_collection_home_type_1
+        self.file_collection_home_type_2 = Constants.file_collection_home_type_2
+        self.file_collection_home_type_3 = Constants.file_collection_home_type_3
+        self.file_collection_home_type_4 = Constants.file_collection_home_type_4
+        self.file_collection_company_type_1 = Constants.file_collection_company_type_1
         self.file_collection_address = Constants.file_collection_address
         self.collection_words = Constants.file_collection_words
 
@@ -30,7 +34,6 @@ class DataHandler:
         chars = set()
 
         for line in f:
-
             # skip comment line
             # if not line or line[0] == '#':
             #     continue
@@ -114,17 +117,37 @@ class DataHandler:
 
     def prepare_collection_words(self):
 
-        file1 = open(self.file_collection_test_address, 'r')
-        lines = file1.readlines()
-        addresses_test = ' '.join([line.strip() for line in lines])
-        file1.close()
+        file_home_type_1 = open(self.file_collection_home_type_1, 'r')
+        lines_home_type_1 = file_home_type_1.readlines()
+        home_type_1 = ' '.join([line.strip() for line in lines_home_type_1])
+        file_home_type_1.close()
+
+        file_home_type_2 = open(self.file_collection_home_type_2, 'r')
+        lines_home_type_2 = file_home_type_2.readlines()
+        home_type_2 = ' '.join([line.strip() for line in lines_home_type_2])
+        file_home_type_2.close()
+
+        file_home_type_3 = open(self.file_collection_home_type_3, 'r')
+        lines_home_type_3 = file_home_type_3.readlines()
+        home_type_3 = ' '.join([line.strip() for line in lines_home_type_3])
+        file_home_type_3.close()
+
+        file_home_type_4 = open(self.file_collection_home_type_4, 'r')
+        lines_home_type_4 = file_home_type_4.readlines()
+        home_type_4 = ' '.join([line.strip() for line in lines_home_type_4])
+        file_home_type_4.close()
+
+        file_company_type_1 = open(self.file_collection_company_type_1, 'r')
+        lines_company_type_1 = file_company_type_1.readlines()
+        company_type_1 = ' '.join([line.strip() for line in lines_company_type_1])
+        file_company_type_1.close()
 
         file2 = open(self.file_collection_address, 'r')
         lines2 = file2.readlines()
         addresses = ' '.join([line.strip() for line in lines2])
         file2.close()
 
-        collection = addresses + addresses_test
+        collection = addresses + home_type_1 + home_type_2 + home_type_3 + home_type_4 + company_type_1
 
         file3 = open(self.collection_words, "w")
         file3.write(collection)

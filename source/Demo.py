@@ -12,16 +12,16 @@ class Demo:
 
     def __init__(self):
 
-        self.correct_words = 0
-        self.correct_addresses = 0
-
-        self.total_words = 0
         self.total_addresses = 0
+        self.address_accuracy = 0
+        self.total_addresses_by_type = 0
+        self.address_accuracy_by_type = 0
+        self.accuracy_list = []
 
         self.path_resources = Constants.path_resources
         self.file_test_img = Constants.file_test_img
         self.path_test_addresses = Constants.path_test_addresses
-        self.file_collection_test_address = Constants.file_collection_test_address
+        self.path_test_address_file = Constants.path_test_address_file
 
         self.service = Service()
 
@@ -43,13 +43,25 @@ class Demo:
 
     def recognize_addresses(self):
 
-        f = open(self.file_collection_test_address, "r")
+        for folder in os.listdir(self.path_test_addresses):
+            if not folder.endswith(".txt"):
+                print('>> Start of Testing ' + folder)
+                self.recognize_address_by_type(folder)
+                print('>> End of Testing ' + folder)
+
+        self.calculate_total_accuracy()
+
+    def recognize_address_by_type(self, folder):
+
+        address_test_file = self.path_test_address_file + folder + ".txt"
+
+        f = open(address_test_file, "r")
         line_list = f.readlines()
 
         n_lines = len(line_list)
 
         for i in range(n_lines):
-            file_name = self.path_test_addresses + str(i + 1) + ".png"
+            file_name = self.path_test_addresses + folder + '/' + str(i) + ".png"
             print(file_name)
 
             img = cv2.imread(file_name)
@@ -62,61 +74,46 @@ class Demo:
 
             self.calculate_address_accuracy(text_list, line_list[i])
 
-        self.calculate_total_accuracy()
+        self.calculate_total_accuracy_per_type(folder)
 
     def calculate_address_accuracy(self, recognized_list, label):
 
-        # start of address accuracy
-
         recognized = ''
-        is_address_accurate = False
-
-        self.total_addresses += 1
 
         for i in recognized_list:
             recognized += i + ' '
 
-        if recognized == label:
-            self.correct_addresses += 1
-            is_address_accurate = True
+        accuracy_address = textdistance.levenshtein.normalized_similarity(recognized, label)
+        accuracy_address = (accuracy_address * 100)
 
-        accuracy_add = textdistance.levenshtein.normalized_similarity(recognized, label)
-        print(">> Accuracy by Algorithm " + str(accuracy_add))
-        print(">> Accuracy by direct " + str(is_address_accurate))
-        print("____________________________________________________________________________________________")
+        self.address_accuracy_by_type += accuracy_address
+        self.total_addresses_by_type += 1
 
-        # end of address accuracy
+        print(">> Accuracy by Address " + str(accuracy_address) + "%")
+        print("__________________________________________________________________________________________")
 
-        # start of address word accuracy
+    def calculate_total_accuracy_per_type(self, address_type):
 
-        label_list = label.split()
+        print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        accuracy_addresses = (self.address_accuracy_by_type / self.total_addresses_by_type)
+        print(">> Type Address Accuracy " + str(accuracy_addresses) + "%")
+        print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
-        recognized_count = len(recognized_list)
-        label_count = len(label_list)
-
-        self.total_words += label_count
-
-        correct_words_in_address = 0
-
-        for i_label in label_list:
-
-            for i_recognized in recognized_list:
-
-                if i_label == i_recognized:
-                    correct_words_in_address += 1
-
-        self.correct_words += correct_words_in_address
-
-        # end of address word accuracy
+        self.accuracy_list.append({address_type: str(accuracy_addresses)})
+        self.address_accuracy += self.address_accuracy_by_type
+        self.total_addresses += self.total_addresses_by_type
+        self.address_accuracy_by_type = 0
+        self.total_addresses_by_type = 0
 
     def calculate_total_accuracy(self):
 
         print("##########################################################################################")
-        accuracy_words = (self.correct_words / self.total_words) * 100
-        accuracy_addresses = (self.correct_addresses / self.total_addresses) * 100
-        print(">> " + str(accuracy_words) + "%")
-        print(">> " + str(accuracy_addresses) + "%")
-        print("###########################################################################################")
+        accuracy_addresses = (self.address_accuracy / self.total_addresses)
+        print(">> Total Address Accuracy " + str(accuracy_addresses) + "%")
+
+        for address in self.accuracy_list:
+            print(address)
+        print("##########################################################################################")
 
 
 demo = Demo()
@@ -131,11 +128,3 @@ if args.address:
     demo.recognize_addresses()
 else:
     demo.recognize_all()
-
-# img = cv2.imread('../resources/test1.png', cv2.IMREAD_GRAYSCALE)
-# img = preprocess(img, Model.img_size)
-# cv2.imshow('word', img)
-# cv2.waitKey(0)
-# plt.imshow(img, cmap='gray')
-# plt.imshow(img)
-# plt.show()
