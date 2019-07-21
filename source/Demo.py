@@ -32,7 +32,7 @@ class Demo:
         for file_img in os.listdir(self.path_resources):
             if file_img.endswith(tuple(ext)):
                 img = cv2.imread(self.path_resources + file_img)
-                text = self.service.recognize_text(img)
+                text = self.service.recognize_text(img, "api")
                 # print(text)
 
     def recognize_single(self):

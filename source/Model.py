@@ -38,7 +38,7 @@ class Model:
         self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 
         with tf.control_dependencies(self.update_ops):
-            self.optimizer = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
+            self.optimizer = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss_batch)
 
         self.sess = tf.Session()
 
@@ -59,7 +59,7 @@ class Model:
     def save(self):
 
         self.model_id += 1
-        self.saver.save(self.sess, '../saved-model/model', global_step=self.model_id)
+        self.saver.save(self.sess, self.path_model + 'model', global_step=self.model_id)
 
     def build_CNN(self):
 
@@ -128,32 +128,32 @@ class Model:
         self.rnn_output_3d = tf.squeeze(rnn, axis=[2])  # reduces the dimension by deleting 2nd index
 
     def build_CTC(self):
-        "create CTC loss and decoder and return them"
 
-        # BxTxC -> TxBxC
+        # transform the rnn_output dimension
         self.ctc_input_3d = tf.transpose(self.rnn_output_3d, [1, 0, 2])
 
-        # ground truth text as sparse tensor
+        # transform label to tensor
         self.labels = tf.SparseTensor(tf.placeholder(tf.int64, shape=[None, 2]),
                                       tf.placeholder(tf.int32, [None]),
                                       tf.placeholder(tf.int64, [2]))
 
-        # calc loss for batch
         self.seq_length = tf.placeholder(tf.int32, [None])
 
-        self.loss = tf.reduce_mean(
-            tf.nn.ctc_loss(labels=self.labels,
-                           inputs=self.ctc_input_3d,
-                           sequence_length=self.seq_length,
-                           ctc_merge_repeated=True))
+        # calculate the loss & return the mean
+        loss_batch_mean = tf.nn.ctc_loss(labels=self.labels,
+                                         inputs=self.ctc_input_3d,
+                                         sequence_length=self.seq_length,
+                                         ctc_merge_repeated=True)
 
-        # calc loss for each element to compute label probability
-        self.savedCtcInput = tf.placeholder(tf.float32, shape=[self.text_length, None, len(self.char_list) + 1])
+        self.loss_batch = tf.reduce_mean(loss_batch_mean)
 
-        self.lossPerElement = tf.nn.ctc_loss(labels=self.labels,
-                                             inputs=self.savedCtcInput,
-                                             sequence_length=self.seq_length,
-                                             ctc_merge_repeated=True)
+        self.ctc_input_element = tf.placeholder(tf.float32, shape=[self.text_length, None, len(self.char_list) + 1])
+
+        # calculate the loss per each element to find the label score
+        self.loss_element = tf.nn.ctc_loss(labels=self.labels,
+                                           inputs=self.ctc_input_element,
+                                           sequence_length=self.seq_length,
+                                           ctc_merge_repeated=True)
 
         if self.decoder_selected == Constants.decoder_best_path:
             print("Decoder Greedy")
@@ -174,33 +174,39 @@ class Model:
         data_handler.prepare_collection_words()
         collection_words = open(self.file_collection_words).read()
 
-        # decode using the "Words" mode of word beam search
-        self.decoder = word_beam_search_module.word_beam_search(tf.nn.softmax(self.ctc_input_3d, dim=2),
-                                                                50,
-                                                                'Words',
-                                                                0.0,
-                                                                collection_words.encode('utf8'),
-                                                                chars.encode('utf8'),
-                                                                word_chars.encode('utf8'))
+        # decode the recognized word against the provided address dictionary
+        self.decoder = word_beam_search_module.word_beam_search(
+            tf.nn.softmax(self.ctc_input_3d, dim=2),
+            50,  # batch size
+            'Words',  # sentence or word
+            0.0,  # smoothing
+            collection_words.encode('utf8'),
+            chars.encode('utf8'),
+            word_chars.encode('utf8'))
 
     def encode(self, texts):
         "transform labels to sparse tensor"
 
         indices = []
         values = []
-        shape = [len(texts), 0]  # last entry must be max(labelList[i])
+        shape = [len(texts), 0]
 
-        # go over all texts
-        for (batchElement, text) in enumerate(texts):
-            # convert to string of label (i.e. class-ids)
-            labelStr = [self.char_list.index(c) for c in text]
-            # sparse tensor must have size of max. label-string
-            if len(labelStr) > shape[1]:
-                shape[1] = len(labelStr)
+        # iterate over the labels (texts)
+        for (batch_element, text) in enumerate(texts):
 
-            # put each label into sparse tensor
-            for (i, label) in enumerate(labelStr):
-                indices.append([batchElement, i])
+            label_list = []
+
+            for c in text:
+                character = self.char_list.index(c)
+                label_list.append(character)
+
+            # check label list length and assign it to shape array
+            if len(label_list) > shape[1]:
+                shape[1] = len(label_list)
+
+            # transform label to tensor
+            for (i, label) in enumerate(label_list):
+                indices.append([batch_element, i])
                 values.append(label)
 
         return (indices, values, shape)
@@ -208,40 +214,28 @@ class Model:
     def decode(self, ctc_output, batch_size):
         "transform sparse tensor to labels"
 
-        # contains string of labels for each batch element
-        encodedLabelStrs = [[] for i in range(batch_size)]
+        encoded_label_list = []  # store batch elements labels
 
-        # word beam search: label strings terminated by blank
-        if self.decoder_selected == Constants.decoder_word_beam:
+        for i in range(batch_size):
+            encoded_label_list.append([])
 
-            blank = len(self.char_list)
+        blank = len(self.char_list)  # last char is a blank
 
-            for b in range(batch_size):
-                for label in ctc_output[b]:
-                    if label == blank:
-                        break
-                    encodedLabelStrs[b].append(label)
+        # transform tensor to char indexes
+        for j in range(batch_size):
 
-        # TF decoders: label strings are contained in sparse tensor
-        else:
-            # ctc returns tuple, first element is SparseTensor
-            decoded = ctc_output[0][0]
-
-            # go over all indices and save mapping: batch -> values
-            idxDict = {b: [] for b in range(batch_size)}
-
-            for (idx, idx2d) in enumerate(decoded.indices):
-                label = decoded.values[idx]
-                batchElement = idx2d[0]  # index according to [b,t]
-                encodedLabelStrs[batchElement].append(label)
+            for label in ctc_output[j]:
+                if label == blank:
+                    break
+                encoded_label_list[j].append(label)
 
         # convert char indexes to words
         word_list = []
 
-        for labelStr in encodedLabelStrs:
+        for label in encoded_label_list:
 
             word = []
-            for c in labelStr:
+            for c in label:
                 char = self.char_list[c]
                 word.append(char)
 
@@ -250,7 +244,6 @@ class Model:
         return word_list
 
     def batch_train(self, batch):
-        "feed a batch into the NN to train it"
 
         n_batch_elements = len(batch.imgs)
         sparse = self.encode(batch.labels)
@@ -265,7 +258,7 @@ class Model:
             else:
                 rate = 0.0001
 
-        evalList = [self.optimizer, self.loss]
+        evaluation_list = [self.optimizer, self.loss_batch]
 
         data_train = {self.input_images: batch.imgs,
                       self.labels: sparse,
@@ -273,15 +266,13 @@ class Model:
                       self.learning_rate: rate,
                       self.is_train: True}
 
-        (_, loss) = self.sess.run(evalList, data_train)
+        (_, loss) = self.sess.run(evaluation_list, data_train)
         self.trained_batches += 1
 
         return loss
 
     def batch_test(self, batch):
-        "feed a batch into the NN to recognize the texts"
 
-        # decode, optionally save RNN output
         n_batch_elements = len(batch.imgs)
 
         data_test = {self.input_images: batch.imgs,
