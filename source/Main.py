@@ -20,12 +20,14 @@ class Main:
 
         self.data_handler = DataHandler()
 
-        # save characters of model for inference mode
-        open(self.char_list, 'w').write(str().join(self.data_handler.char_list))
-        # save words contained in dataset into file
-        open(self.collection_handwritten_words, 'w').write(str(' ').join(self.data_handler.words_train + self.data_handler.words_test))
+        file_char_list = open(self.char_list, 'w')
+        str_char_list = str().join(self.data_handler.char_list)
+        file_char_list.write(str_char_list)
 
-        # self.model = Model()
+        file_collection_handwritten_words = open(self.collection_handwritten_words, 'w')
+        str_collection_handwritten_words = str(' ').join(self.data_handler.words_train + self.data_handler.words_test)
+        file_collection_handwritten_words.write(str_collection_handwritten_words)
+
         self.model = Model(self.data_handler.char_list)
 
         for epoch in range(self.num_epochs):
@@ -66,7 +68,6 @@ class Main:
             batch = self.data_handler.get_next()
             recognized = self.model.batch_test(batch)
 
-            # print('Ground truth -> Recognized')
             for i in range(len(recognized)):
                 is_correct = batch.labels[i] == recognized[i]
                 n_correct += 1 if is_correct else 0

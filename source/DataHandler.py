@@ -34,16 +34,10 @@ class DataHandler:
         chars = set()
 
         for line in f:
-            # skip comment line
-            # if not line or line[0] == '#':
-            #     continue
 
             line_split = line.strip().split(' ')
-            # assert len(line_split) >= 9
-
             file_name = self.split_file_name(line_split)
 
-            # label is the column starting at 9
             label = ' '.join(line_split[8:])[:self.text_length]
             chars = chars.union(set(list(label)))
 
